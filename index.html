@@ -327,27 +327,38 @@
 <div class="site">
 
   <!-- ============================================
-       HEADER
-       ============================================ -->
-  <header>
-    <div class="brand">
-      <div class="logo">S</div>
-      <div>
-        <h1 style="margin:0;">Solasaki Comics</h1>
-        <div style="color:var(--muted);font-size:12px;">Comics & Daily Write-ups</div>
-      </div>
+  HEADER -->
+       
+<header class="topbar">
+  <div class="brand" style="display:flex;align-items:center;gap:12px;">
+
+    <!-- Header Icon -->
+    <img 
+      src="/assets/uploads/IMG_0079.jpeg" 
+      alt="Solasaki icon" 
+      style="width:48px;height:48px;border-radius:12px;object-fit:cover;display:block;"
+    >
+
+    <div style="display:flex;flex-direction:column;line-height:1.1;">
+      <h1 style="margin:0;font-family:'Patrick Hand';font-size:22px;">
+        Solasaki Comics
+      </h1>
+      <p style="margin:0;color:var(--muted);font-size:12px;">
+        Comics & Daily Write-ups
+      </p>
     </div>
+  </div>
 
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#comics">Comics</a>
-      <a href="#writeups">Daily Write-ups</a>
-      <a href="#about">About</a>
-      <a class="cta" href="#contact">Contact</a>
-      <button id="themeToggle" class="theme-toggle">🌙</button>
-    </nav>
-  </header>
-
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <a href="#home">Home</a>
+    <a href="#comics">Comics</a>
+    <a href="#daily">Daily Write-ups</a>
+    <a href="#about">About</a>
+    <a href="#contact" class="button small">Contact</a>
+    <button id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+  </nav>
+</header>
 
   <!-- ============================================
        HERO SECTION
