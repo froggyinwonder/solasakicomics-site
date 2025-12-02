@@ -1,7 +1,11 @@
 <!doctype html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Write-ups — Solasaki</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Write-ups — Solasaki Comics</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -23,67 +27,73 @@
 </header>
 
 <div class="page slide-up">
-  <h2>Daily Write-ups</h2>
 
-  <div class="searchbar">
-    <input id="searchInput" type="text" placeholder="Search write-ups...">
-  </div>
+  <h2>Write-ups</h2>
+  <p style="color:var(--muted);margin-bottom:20px;">
+    A collection of my writings, stories, and strange yellow thoughts.
+  </p>
 
-  <div id="entries">Loading…</div>
+  <!-- Container for the post list -->
+  <div id="writeups-list"></div>
+
 </div>
 
-<script>
-async function loadWritings() {
-  const container = document.getElementById("entries");
-
-  const api = "https://api.github.com/repos/froggyinwonder/solasakicomics-site/contents/writings";
-  let data = await fetch(api).then(r => r.json());
-  let files = data.filter(f => f.name.endsWith(".md"));
-
-  window.ALL_WRITES = [];
-
-  for (let f of files) {
-    let content = await fetch(f.download_url).then(r => r.text());
-    let body = content.split("---")[2];
-
-    const entry = {
-      title: f.name.replace(".md", ""),
-      content: body
-    };
-
-    ALL_WRITES.push(entry);
-  }
-
-  renderWrites(ALL_WRITES);
-}
-
-function renderWrites(list) {
-  const container = document.getElementById("entries");
-  container.innerHTML = "";
-
-  list.forEach(w => {
-    container.innerHTML += `
-      <div class="entry fade">
-        <h3>${w.title}</h3>
-        <p>${w.content.replace(/\n/g,"<br>")}</p>
-      </div>
-    `;
-  });
-}
-
-document.getElementById("searchInput").addEventListener("input", e => {
-  const q = e.target.value.toLowerCase();
-  const filtered = ALL_WRITES.filter(w =>
-    w.title.toLowerCase().includes(q) ||
-    w.content.toLowerCase().includes(q)
-  );
-  renderWrites(filtered);
-});
-
-loadWritings();
-</script>
-
 <footer>© 2025 Solasaki Comics</footer>
+
+<!-- Loader for the writeups index -->
+<script>
+/* ============================================
+   LOAD LIST OF WRITINGS
+   ============================================ */
+
+async function loadWriteups() {
+  const listEl = document.getElementById("writeups-list");
+
+  try {
+    const apiURL = "https://api.github.com/repos/froggyinwonder/solasakicomics-site/contents/writings";
+    const res = await fetch(apiURL);
+    if (!res.ok) throw new Error("Failed to load");
+
+    const files = await res.json();
+
+    // Only markdown files
+    const posts = files.filter(f => f.name.endsWith(".md"));
+
+    // Sort newest → oldest by date in filename
+    posts.sort((a, b) => new Date(b.name) - new Date(a.name));
+
+    let html = "";
+
+    for (const post of posts) {
+      const slug = post.name.replace(".md", "");
+      const url = `/writings/${slug}/`;   // pretty URL
+
+      // Fetch MD to extract title + date
+      const mdRes = await fetch(post.download_url);
+      const raw = await mdRes.text();
+
+      const front = raw.split("---")[1];
+
+      const title = (front.match(/title:\s*"(.*?)"/) || [])[1] || slug;
+      const date = (front.match(/date:\s*"(.*?)"/) || [])[1] || "";
+
+      html += `
+        <a href="${url}" class="write-card" style="display:block;text-decoration:none;color:var(--text);">
+          <h3>${title}</h3>
+          <p style="color:var(--muted);font-size:13px;">${date}</p>
+        </a>
+      `;
+    }
+
+    listEl.innerHTML = html;
+
+  } catch (err) {
+    listEl.innerHTML = "<p>Could not load write-ups.</p>";
+  }
+}
+
+loadWriteups();
+</script>
 
 </body>
 </html>
