@@ -1,12 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Write-ups — Solasaki Comics</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body class="fade">
 
 <header>
@@ -14,7 +13,6 @@
     <img src="assets/uploads/IMG_0079.jpeg" style="width:48px;height:48px;border-radius:12px;object-fit:cover;">
     <h1>Solasaki Comics</h1>
   </div>
-
   <nav>
     <a href="index.html">Home</a>
     <a href="comics.html">Comics</a>
@@ -24,76 +22,122 @@
   </nav>
 </header>
 
-<div class="page slide-up">
+<main class="page slide-up" style="max-width:900px;margin:auto;padding:20px;">
   <h2>Write-ups</h2>
   <p>A collection of my writings, stories, and strange yellow thoughts.</p>
 
-  <div id="writeups-list" style="margin-top:30px;">
-    Loading posts…
-  </div>
-</div>
+  <div id="writeups-list" style="margin-top:30px;">Loading posts…</div>
+</main>
 
 <footer>© <span id="year"></span> Solasaki Comics</footer>
 
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 
-/* ===========================================
-   LOAD ALL MARKDOWN FILES FROM /writings/
-   =========================================== */
+async function fetchGitHubIndex(){
+  const apiURL = "https://api.github.com/repos/froggyinwonder/solasakicomics-site/contents/writings";
+  console.log("[writeups] trying GitHub API:", apiURL);
+  const res = await fetch(apiURL);
+  if (!res.ok) {
+    const text = await res.text().catch(()=>null);
+    throw new Error(`GitHub API returned ${res.status} ${res.statusText} - ${text?text.substring(0,200):''}`);
+  }
+  return res.json();
+}
 
-async function loadWriteups() {
-  const container = document.getElementById("writeups-list");
+async function fetchLocalIndexJSON(){
+  const url = "writings/index.json";
+  console.log("[writeups] trying local fallback:", url);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Local index.json fetch failed ${res.status}`);
+  return res.json();
+}
 
+function extractFrontmatter(mdText){
+  const front = (mdText.split("---")[1]||"");
+  const title = (front.match(/title:\s*["']?(.*?)["']?(\n|$)/) || [])[1] || null;
+  const date = (front.match(/date:\s*["']?(.*?)["']?(\n|$)/) || [])[1] || "";
+  return {title, date};
+}
+
+async function buildListFromGitHub(){
+  const listEl = document.getElementById("writeups-list");
   try {
-    const apiURL = "https://api.github.com/repos/froggyinwonder/solasakicomics-site/contents/writings";
+    const files = await fetchGitHubIndex();
+    // ensure array
+    if (!Array.isArray(files)) throw new Error("GitHub index response not array");
+    const mdFiles = files.filter(f=>f.name && f.name.endsWith(".md"));
 
-    const res = await fetch(apiURL);
-    if (!res.ok) throw new Error("Failed to fetch list");
-
-    const files = await res.json();
-
-    const posts = files.filter(f => f.name.endsWith(".md"));
-
-    if (posts.length === 0) {
-      container.innerHTML = "<p>No posts yet.</p>";
+    if (mdFiles.length === 0) {
+      listEl.innerHTML = "<p>No posts yet.</p>";
       return;
     }
 
-    // Sort files newest→oldest by filename (recommended naming: yyyy-mm-dd-title.md)
-    posts.sort((a, b) => b.name.localeCompare(a.name));
+    // sort newest -> oldest by filename (recommend yyyy-mm-dd-title.md)
+    mdFiles.sort((a,b)=> b.name.localeCompare(a.name));
 
     let html = "";
-
-    for (const post of posts) {
-      const slug = post.name.replace(".md", "");
-
-      const mdRes = await fetch(post.download_url);
-      const text = await mdRes.text();
-
-      // Extract frontmatter
-      const titleMatch = text.match(/title:\s*["']?(.*?)["']?\n/);
-      const dateMatch = text.match(/date:\s*["']?(.*?)["']?\n/);
-
-      const title = titleMatch ? titleMatch[1] : slug;
-      const date = dateMatch ? dateMatch[1] : "";
-
-      html += `
-        <a class="entry" href="writeup-viewer.html?post=${slug}" style="display:block;margin-bottom:20px;padding:16px;text-decoration:none;color:inherit;">
+    for (const f of mdFiles){
+      try {
+        const mdRes = await fetch(f.download_url);
+        const mdText = await mdRes.text();
+        const fm = extractFrontmatter(mdText);
+        const slug = f.name.replace(/\.md$/,"");
+        const title = fm.title || slug;
+        const date = fm.date || "";
+        html += `<a class="entry" href="writeup-viewer.html?post=${encodeURIComponent(slug)}" style="display:block;margin-bottom:18px;padding:14px;border-radius:10px;border:1px dashed var(--border);text-decoration:none;color:inherit;">
           <h3 style="margin:0 0 6px 0;">${title}</h3>
           <p style="margin:0;color:var(--muted);font-size:13px;">${date}</p>
-        </a>
-      `;
+        </a>`;
+      } catch(e){
+        console.warn("[writeups] could not fetch md", f.name, e);
+      }
     }
-
-    container.innerHTML = html;
-
-  } catch (err) {
-    container.innerHTML = "<p>Could not load writeups.</p>";
+    listEl.innerHTML = html;
+  } catch(err) {
+    console.error("[writeups] GitHub API failed:", err);
+    throw err;
   }
 }
 
-loadWriteups();
+async function buildListFromIndexJSON(){
+  const listEl = document.getElementById("writeups-list");
+  try {
+    const idx = await fetchLocalIndexJSON();
+    if (!Array.isArray(idx) || idx.length === 0) {
+      listEl.innerHTML = "<p>No posts found in index.json</p>";
+      return;
+    }
+    // index.json expects array of { "slug":"welcome-to-solasaki", "title":"...", "date":"..." }
+    idx.sort((a,b) => (b.slug || "").localeCompare(a.slug || ""));
+    let html="";
+    for (const p of idx){
+      const slug = p.slug;
+      const title = p.title || slug;
+      const date = p.date || "";
+      html += `<a class="entry" href="writeup-viewer.html?post=${encodeURIComponent(slug)}" style="display:block;margin-bottom:18px;padding:14px;border-radius:10px;border:1px dashed var(--border);text-decoration:none;color:inherit;">
+          <h3 style="margin:0 0 6px 0;">${title}</h3>
+          <p style="margin:0;color:var(--muted);font-size:13px;">${date}</p>
+        </a>`;
+    }
+    listEl.innerHTML = html;
+  } catch(err){
+    console.error("[writeups] local index.json failed:", err);
+    document.getElementById("writeups-list").innerHTML = "<p>Could not load writeups (check console)</p>";
+  }
+}
+
+(async function init(){
+  const listEl = document.getElementById("writeups-list");
+  try {
+    await buildListFromGitHub();
+    console.log("[writeups] loaded via GitHub API");
+  } catch(e) {
+    // fallback to local index.json
+    console.warn("[writeups] falling back to local index.json");
+    await buildListFromIndexJSON();
+  }
+})();
 </script>
 
 </body>
