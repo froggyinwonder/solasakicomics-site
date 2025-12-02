@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+  <title>About — Solasaki</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="fade">
+
+<header>
+  <div class="logoarea">
+    <img src="assets/uploads/IMG_0079.jpeg">
+    <h1>Solasaki Comics</h1>
+  </div>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="comics.html">Comics</a>
+    <a href="writeups.html">Write-ups</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<div class="page">
+
+  <h2>About</h2>
+
+  <p>Hello! I'm Surbhi — the creator behind Solasaki Comics.  
+  I make small comics inspired by weird observations.</p>
+
+  <h3 style="font-family:'Patrick Hand';margin-top:40px;">
+    ✏️ Draw something for the artist… or for yourself!
+  </h3>
+
+  <div class="sketchboard">
+    <canvas id="drawCanvas"></canvas>
+
+    <div class="sketch-controls">
+      <button onclick="clearCanvas()">Clear</button>
+      <button onclick="toggleDraw()">Toggle Draw</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let canvas = document.getElementById("drawCanvas");
+let ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+}
+resize();
+window.onresize = resize;
+
+let drawing = false;
+
+canvas.addEventListener("pointerdown", () => drawing = true);
+canvas.addEventListener("pointerup", () => drawing = false);
+canvas.addEventListener("pointermove", draw);
+
+function draw(e) {
+  if (!drawing) return;
+  ctx.fillStyle = "#1a1a1a";
+  ctx.beginPath();
+  ctx.arc(e.offsetX, e.offsetY, 2, 0, Math.PI*2);
+  ctx.fill();
+}
+
+function clearCanvas() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function toggleDraw() {
+  drawing = !drawing;
+}
+</script>
+
+<footer>© 2025 Solasaki Comics</footer>
+
+</body>
+</html>
