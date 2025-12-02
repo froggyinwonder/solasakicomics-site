@@ -1,11 +1,9 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Write-ups — Solasaki Comics</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -13,82 +11,85 @@
 
 <header>
   <div class="logoarea">
-    <img src="assets/uploads/IMG_0079.jpeg">
+    <img src="assets/uploads/IMG_0079.jpeg" style="width:48px;height:48px;border-radius:12px;object-fit:cover;">
     <h1>Solasaki Comics</h1>
   </div>
 
   <nav>
     <a href="index.html">Home</a>
     <a href="comics.html">Comics</a>
-    <a href="writeups.html">Write-ups</a>
+    <a href="writeups.html" class="active">Write-ups</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
 </header>
 
 <div class="page slide-up">
-
   <h2>Write-ups</h2>
-  <p style="color:var(--muted);margin-bottom:20px;">
-    A collection of my writings, stories, and strange yellow thoughts.
-  </p>
+  <p>A collection of my writings, stories, and strange yellow thoughts.</p>
 
-  <!-- Container for the post list -->
-  <div id="writeups-list"></div>
-
+  <div id="writeups-list" style="margin-top:30px;">
+    Loading posts…
+  </div>
 </div>
 
-<footer>© 2025 Solasaki Comics</footer>
+<footer>© <span id="year"></span> Solasaki Comics</footer>
 
-<!-- Loader for the writeups index -->
 <script>
-/* ============================================
-   LOAD LIST OF WRITINGS
-   ============================================ */
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* ===========================================
+   LOAD ALL MARKDOWN FILES FROM /writings/
+   =========================================== */
 
 async function loadWriteups() {
-  const listEl = document.getElementById("writeups-list");
+  const container = document.getElementById("writeups-list");
 
   try {
     const apiURL = "https://api.github.com/repos/froggyinwonder/solasakicomics-site/contents/writings";
+
     const res = await fetch(apiURL);
-    if (!res.ok) throw new Error("Failed to load");
+    if (!res.ok) throw new Error("Failed to fetch list");
 
     const files = await res.json();
 
-    // Only markdown files
     const posts = files.filter(f => f.name.endsWith(".md"));
 
-    // Sort newest → oldest by date in filename
-    posts.sort((a, b) => new Date(b.name) - new Date(a.name));
+    if (posts.length === 0) {
+      container.innerHTML = "<p>No posts yet.</p>";
+      return;
+    }
+
+    // Sort files newest→oldest by filename (recommended naming: yyyy-mm-dd-title.md)
+    posts.sort((a, b) => b.name.localeCompare(a.name));
 
     let html = "";
 
     for (const post of posts) {
       const slug = post.name.replace(".md", "");
-      const url = `/writings/${slug}/`;   // pretty URL
 
-      // Fetch MD to extract title + date
       const mdRes = await fetch(post.download_url);
-      const raw = await mdRes.text();
+      const text = await mdRes.text();
 
-      const front = raw.split("---")[1];
+      // Extract frontmatter
+      const titleMatch = text.match(/title:\s*["']?(.*?)["']?\n/);
+      const dateMatch = text.match(/date:\s*["']?(.*?)["']?\n/);
 
-      const title = (front.match(/title:\s*"(.*?)"/) || [])[1] || slug;
-      const date = (front.match(/date:\s*"(.*?)"/) || [])[1] || "";
+      const title = titleMatch ? titleMatch[1] : slug;
+      const date = dateMatch ? dateMatch[1] : "";
 
       html += `
-        <a href="${url}" class="write-card" style="display:block;text-decoration:none;color:var(--text);">
-          <h3>${title}</h3>
-          <p style="color:var(--muted);font-size:13px;">${date}</p>
+        <a class="entry" href="writeup-viewer.html?post=${slug}" style="display:block;margin-bottom:20px;padding:16px;text-decoration:none;color:inherit;">
+          <h3 style="margin:0 0 6px 0;">${title}</h3>
+          <p style="margin:0;color:var(--muted);font-size:13px;">${date}</p>
         </a>
       `;
     }
 
-    listEl.innerHTML = html;
+    container.innerHTML = html;
 
   } catch (err) {
-    listEl.innerHTML = "<p>Could not load write-ups.</p>";
+    container.innerHTML = "<p>Could not load writeups.</p>";
   }
 }
 
