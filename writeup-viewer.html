@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title id="title">Loading…</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <meta name="description" id="meta-desc" content="Solasaki Comics writing" />
+</head>
+
+<body class="fade">
+
+<header>
+  <div class="logoarea">
+    <img src="assets/uploads/IMG_0079.jpeg" style="width:48px;height:48px;border-radius:12px;object-fit:cover;">
+    <h1>Solasaki Comics</h1>
+  </div>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="comics.html">Comics</a>
+    <a href="writeups.html">Write-ups</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<div class="page slide-up" style="max-width:800px;margin:auto;">
+  <h2 id="post-title">Loading…</h2>
+  <p id="post-date" style="color:var(--muted)"></p>
+
+  <div id="post-body" class="entry" style="margin-top:20px;">Loading post…</div>
+</div>
+
+<footer>© <span id="year"></span> Solasaki Comics</footer>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+/* Get ?post=slug */
+const params = new URLSearchParams(location.search);
+const slug = params.get("post");
+
+if (!slug) {
+  document.getElementById("post-body").innerHTML = "<p>Post not found.</p>";
+}
+
+/* Load markdown */
+async function loadPost() {
+  try {
+    const res = await fetch(`writings/${slug}.md`);
+    if (!res.ok) throw new Error();
+
+    const text = await res.text();
+
+    const title = text.match(/title:\s*["']?(.*?)["']?\n/);
+    const date = text.match(/date:\s*["']?(.*?)["']?\n/);
+    const body = text.split("---").pop().trim();
+
+    document.getElementById("title").textContent = title ? title[1] : "Untitled";
+    document.getElementById("post-title").textContent = title ? title[1] : "Untitled";
+    document.getElementById("post-date").textContent = date ? date[1] : "";
+
+    const htmlBody = body.replace(/\n/g, "<br>");
+    document.getElementById("post-body").innerHTML = htmlBody;
+
+  } catch (e) {
+    document.getElementById("post-body").innerHTML = "<p>Could not load post.</p>";
+  }
+}
+
+loadPost();
+</script>
+
+</body>
+</html>
