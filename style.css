@@ -351,3 +351,18 @@ nav a {
     font-weight: 600;          /* semi-bold */
     letter-spacing: 0.3px;     /* cleaner look */
 }
+/* --- FIX HEADER SPACING & BOLD MENU --- */
+header nav a {
+  font-weight: 600;          /* bold like you asked */
+  margin: 0 14px;            /* spacing between menu items */
+}
+
+header {
+  gap: 20px;                 /* space between logo, nav, and dark button */
+}
+/* --- FIX INSTAGRAM SIZE ON INDEX --- */
+.comic-rotator iframe,
+.comic-rotator blockquote.instagram-media {
+  max-width: 330px !important;
+  margin: 0 auto !important;
+}
