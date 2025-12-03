@@ -366,3 +366,41 @@ header {
   max-width: 330px !important;
   margin: 0 auto !important;
 }
+/* =======================================
+   MOBILE HEADER FIX — FORCE STACKING
+   ======================================= */
+@media (max-width: 600px) {
+
+  header {
+    display: flex;
+    flex-direction: column;    /* STACKS logo + nav vertically */
+    align-items: center;
+    gap: 8px;
+    padding: 12px 0;
+  }
+
+  .logoarea {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px;                 /* spacing between menu links */
+  }
+
+  nav a {
+    font-size: 16px;
+    font-weight: 600;          /* bold like before */
+  }
+
+  .toggle-mode {
+    position: absolute;
+    top: 12px;
+    right: 12px;               /* stays top-right ALWAYS */
+  }
+}
