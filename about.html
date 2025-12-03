@@ -1,191 +1,217 @@
-<div class="page slide-up">
-  <h2>About</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | Solasaki Comics</title>
+    <link rel="stylesheet" href="style.css">
 
-  <p>Hello! Welcome to the yellow world. I'm Surbhi — creator of Solasaki Comics.
-  I make simple comics inspired by my weird observations.
-  You can also read my writeups if you have nothing better to do.</p>
+    <style>
+        .draw-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            background: #faf7ef;
+            border: 2px dashed #d8cfc4;
+            border-radius: 12px;
+            padding: 10px;
+        }
 
-  <h3>Draw something!</h3>
+        #drawCanvas {
+            width: 100%;
+            height: 380px;
+            background: #fdf9f3;
+            border-radius: 8px;
+            touch-action: none;
+        }
 
-  <div id="draw-area">
-    <canvas id="doodleCanvas"></canvas>
+        .tool-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
 
-    <!-- Tools -->
-    <div class="tools">
-      <button id="pencilBtn" class="tool active">✏️ Pencil</button>
-      <button id="eraserBtn" class="tool">🩹 Eraser</button>
-      <button id="undoBtn" class="tool">↩️ Undo</button>
-      <button id="saveBtn" class="save-btn">Save Doodle</button>
-    </div>
-  </div>
+        .tool-buttons button {
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
 
-  <h3>Visitors' doodles</h3>
-  <div id="doodlesGallery"></div>
-</div>
+        .save-btn {
+            background: #b48fd5;
+            color: white;
+        }
 
-<script type="module">
-  import { supabase } from "./scripts/supabase.js";
+        .tool-btn {
+            background: #eee;
+        }
+    </style>
+</head>
 
-  /* Canvas Setup */
-  const canvas = document.getElementById("doodleCanvas");
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
-  let tool = "pencil";
-  let strokeColor = "#000000";
-  let strokeSize = 3;
+<body>
+    <header>
+        <a href="index.html"><h1>Solasaki Comics</h1></a>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="comics.html">Comics</a>
+            <a href="writeups.html">Write-ups</a>
+            <a class="active" href="#">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
 
-  // Undo stack
-  let history = [];
+    <main>
+        <h2>About</h2>
 
-  // Auto-resize canvas
-  function resizeCanvas() {
-    canvas.width = document.getElementById("draw-area").offsetWidth - 20;
-    canvas.height = 300;
-    ctx.fillStyle = "#faf7ef"; // background
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-  }
-  resizeCanvas();
-  window.addEventListener("resize", resizeCanvas);
+        <p>Hello! Welcome to the yellow world. I'm Surbhi — creator of Solasaki Comics.  
+        I make simple comics inspired by my weird observations.  
+        You can also read my writeups if you have nothing better to do.</p>
 
-  function saveState() {
-    history.push(canvas.toDataURL());
-    if (history.length > 25) history.shift();
-  }
+        <h3>Draw something!</h3>
 
-  canvas.addEventListener("mousedown", (e) => {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
-    saveState();
-  });
+        <div class="draw-container">
+            <canvas id="drawCanvas"></canvas>
 
-  canvas.addEventListener("mousemove", (e) => {
-    if (!drawing) return;
-    ctx.lineWidth = strokeSize;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = tool === "eraser" ? "#faf7ef" : "#000000";
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-  });
+            <div class="tool-buttons">
+                <button class="tool-btn" id="pencilBtn">✏️ Pencil</button>
+                <button class="tool-btn" id="eraserBtn">🧽 Eraser</button>
+                <button class="tool-btn" id="undoBtn">↩️ Undo</button>
+                <button class="save-btn" id="saveBtn">Save Doodle</button>
+            </div>
+        </div>
 
-  canvas.addEventListener("mouseup", () => drawing = false);
-  canvas.addEventListener("mouseleave", () => drawing = false);
+        <h3>Visitors' doodles</h3>
+        <div id="doodlesGrid" class="doodles-grid"></div>
+    </main>
 
-  /* Tools */
-  document.getElementById("pencilBtn").onclick = () => {
-    tool = "pencil";
-    strokeColor = "#000";
-    document.getElementById("pencilBtn").classList.add("active");
-    document.getElementById("eraserBtn").classList.remove("active");
-  };
+    <footer>
+        <p>© 2025 Solasaki Comics</p>
+    </footer>
 
-  document.getElementById("eraserBtn").onclick = () => {
-    tool = "eraser";
-    document.getElementById("eraserBtn").classList.add("active");
-    document.getElementById("pencilBtn").classList.remove("active");
-  };
+    <!-- Supabase Client -->
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  document.getElementById("undoBtn").onclick = () => {
-    if (history.length <= 1) return;
-    history.pop();
-    let previous = new Image();
-    previous.src = history[history.length - 1];
-    previous.onload = () => ctx.drawImage(previous, 0, 0, canvas.width, canvas.height);
-  };
+        const supabase = createClient(
+            "https://rgxtvwnfqglsxnmvkkus.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJneHR2d25mcWdsc3hubXZra3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NjEwNzksImV4cCI6MjA4MDMzNzA3OX0.twtdhIMF4xnaBQsird8CyEb3g3Kh8bI5REChohdyGwo"
+        );
 
-  /* Upload to Supabase */
-  document.getElementById("saveBtn").onclick = async () => {
-    const dataUrl = canvas.toDataURL("image/png");
-    const fileName = `doodle-${Date.now()}.png`;
+        // Canvas Setup
+        const canvas = document.getElementById("drawCanvas");
+        const ctx = canvas.getContext("2d");
 
-    const { data, error } = await supabase.storage
-      .from("doodles")
-      .upload(fileName, dataUrl.split(",")[1], {
-        contentType: "image/png",
-        upsert: false
-      });
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
 
-    if (error) {
-      alert("Error saving doodle!");
-      return;
-    }
+        let drawing = false;
+        let erasing = false;
+        let strokes = [];
+        let currentStroke = [];
 
-    loadDoodles();
-  };
+        function startDraw(e) {
+            drawing = true;
+            currentStroke = [];
+            draw(e);
+        }
 
-  /* Load stored doodles */
-  async function loadDoodles() {
-    const { data } = await supabase.storage.from("doodles").list("", { limit: 20 });
+        function endDraw() {
+            drawing = false;
+            if (currentStroke.length > 0) strokes.push(currentStroke);
+        }
 
-    const gallery = document.getElementById("doodlesGallery");
-    gallery.innerHTML = "";
+        function draw(e) {
+            if (!drawing) return;
 
-    data?.forEach(file => {
-      const url = `${supabase.storageUrl}/object/public/doodles/${file.name}`;
-      const img = document.createElement("img");
-      img.src = url;
-      img.className = "doodle-thumb";
-      gallery.appendChild(img);
-    });
-  }
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
 
-  loadDoodles();
-</script>
+            ctx.lineWidth = erasing ? 18 : 3;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = erasing ? "#fdf9f3" : "#333";
 
-<style>
-  #draw-area {
-    border: 2px dashed var(--border);
-    padding: 10px;
-    background: #faf7ef;
-    margin-bottom: 20px;
-    border-radius: 12px;
-  }
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
 
-  canvas {
-    width: 100%;
-    height: 300px;
-    border-radius: 10px;
-    background: #faf7ef;
-  }
+            currentStroke.push({ x, y, erasing });
+        }
 
-  .tools {
-    margin-top: 12px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
+        canvas.addEventListener("mousedown", startDraw);
+        canvas.addEventListener("mouseup", endDraw);
+        canvas.addEventListener("mousemove", draw);
 
-  .tool {
-    padding: 8px 14px;
-    border-radius: 8px;
-    border: 2px solid var(--border);
-    background: white;
-    cursor: pointer;
-  }
+        canvas.addEventListener("touchstart", startDraw);
+        canvas.addEventListener("touchend", endDraw);
+        canvas.addEventListener("touchmove", draw);
 
-  .tool.active {
-    background: #d3bef1;
-    border-color: #b592e8;
-  }
+        // Tools
+        document.getElementById("pencilBtn").onclick = () => { erasing = false; };
+        document.getElementById("eraserBtn").onclick = () => { erasing = true; };
 
-  .save-btn {
-    background: #b88fbf;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 8px;
-  }
+        document.getElementById("undoBtn").onclick = () => {
+            strokes.pop();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            redraw();
+        };
 
-  #doodlesGallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
-    margin-top: 15px;
-  }
+        function redraw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let stroke of strokes) {
+                ctx.beginPath();
+                for (let i = 0; i < stroke.length; i++) {
+                    ctx.lineWidth = stroke[i].erasing ? 18 : 3;
+                    ctx.strokeStyle = stroke[i].erasing ? "#fdf9f3" : "#333";
+                    if (i === 0) ctx.moveTo(stroke[i].x, stroke[i].y);
+                    else ctx.lineTo(stroke[i].x, stroke[i].y);
+                    ctx.stroke();
+                }
+            }
+            ctx.beginPath();
+        }
 
-  .doodle-thumb {
-    width: 100%;
-    border-radius: 10px;
-    border: 2px dashed var(--border);
-  }
-</style>
+        // Save to Supabase
+        document.getElementById("saveBtn").onclick = async () => {
+            canvas.toBlob(async (blob) => {
+                const fileName = `doodle-${Date.now()}.png`;
+
+                const { error } = await supabase.storage
+                    .from("doodles")
+                    .upload(fileName, blob);
+
+                if (error) alert("Error saving doodle!");
+                else alert("Doodle saved!");
+            });
+        };
+
+        // Load doodles grid
+        async function loadDoodles() {
+            const { data } = await supabase.storage.from("doodles").list();
+
+            const grid = document.getElementById("doodlesGrid");
+            grid.innerHTML = "";
+
+            data.reverse().forEach(file => {
+                const url =
+                    `https://rgxtvwnfqglsxnmvkkus.supabase.co/storage/v1/object/public/doodles/${file.name}`;
+
+                const img = document.createElement("img");
+                img.src = url;
+                img.className = "doodle-thumb";
+
+                grid.appendChild(img);
+            });
+        }
+
+        loadDoodles();
+    </script>
+
+</body>
+</html>
