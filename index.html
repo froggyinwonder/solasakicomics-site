@@ -3,7 +3,105 @@
 <head>
   <title>Solasaki Comics</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* =============================
+       HERO WALLPAPER SECTION
+       ============================= */
+    .hero-wallpaper {
+      width: 100%;
+      padding: 40px 20px;
+      background-image: url("assets/uploads/wallpaper-soft.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border-bottom: 2px dashed var(--border);
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .hero-overlay {
+      text-align: center;
+    }
+
+    .hero-doodle {
+      width: 160px;
+      max-width: 60%;
+      opacity: 0.95;
+      display: block;
+      margin: 0 auto 12px auto;
+      filter: drop-shadow(0px 3px 6px rgba(0,0,0,0.08));
+    }
+
+    .hero-text {
+      font-family: "Patrick Hand";
+      font-size: 30px;
+      background: rgba(255,255,255,0.75);
+      border: 2px dashed var(--border);
+      padding: 6px 14px;
+      border-radius: 12px;
+      display: inline-block;
+      margin: 0;
+    }
+
+    @media(max-width: 600px) {
+      .hero-doodle {
+        width: 120px;
+      }
+      .hero-text {
+        font-size: 24px;
+        padding: 6px 12px;
+      }
+      .hero-wallpaper {
+        padding: 30px 10px;
+      }
+    }
+
+    /* =============================
+       COMIC ROTATOR
+       ============================= */
+    .comic-rotator-wrapper {
+      text-align: center;
+      padding: 20px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .comic-title-box {
+      font-family: "Patrick Hand";
+      font-size: 20px;
+      padding: 6px 14px;
+      border: 2px dashed var(--border);
+      background: #fffdf7;
+      display: inline-block;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .comic-rotator {
+      position: relative;
+      width: 100%;
+      min-height: 400px;
+    }
+
+    .comic-frame {
+      display: none;
+      width: 100%;
+    }
+
+    .comic-frame.active {
+      display: block;
+    }
+
+    blockquote.instagram-media {
+      margin: 0 auto !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  </style>
 </head>
+
 
 <body class="fade">
 
@@ -14,7 +112,7 @@
   </div>
 
   <nav>
-    <a href="index.html">Home</a>
+    <a class="active" href="index.html">Home</a>
     <a href="comics.html">Comics</a>
     <a href="writeups.html">Write-ups</a>
     <a href="about.html">About</a>
@@ -22,75 +120,77 @@
   </nav>
 </header>
 
-  
+
+<!-- ⭐ CLEAN HERO WALLPAPER -->
 <section class="hero-wallpaper">
     <div class="hero-overlay">
-        <img src="assets/uploads/sleeping-doodle.png" alt="Sleeping doodle" class="hero-doodle">
+        <img src="assets/sleeping-doodle.png" alt="Sleeping doodle" class="hero-doodle">
         <h2 class="hero-text">Welcome to my sketchbook</h2>
     </div>
 </section>
 
-  <h2>Welcome to my sketchbook</h2>
-  <div class="comic-rotator-wrapper">
 
-    <div class="comic-title-box">Comic/Art of the Day</div>
 
-    <div class="comic-rotator">
+<!-- ⭐ COMIC OF THE DAY -->
+<div class="comic-rotator-wrapper">
 
-        <div class="comic-frame active">
-            <blockquote class="instagram-media"
-                data-instgrm-permalink="https://www.instagram.com/p/DPRQJkikqyW/"
-                data-instgrm-version="14"></blockquote>
-        </div>
+  <div class="comic-title-box">Comic/Art of the Day</div>
 
-        <div class="comic-frame">
-            <blockquote class="instagram-media"
-                data-instgrm-permalink="https://www.instagram.com/p/DPYy0rpAaU1/"
-                data-instgrm-version="14"></blockquote>
-        </div>
+  <div class="comic-rotator">
 
-        <div class="comic-frame">
-            <blockquote class="instagram-media"
-                data-instgrm-permalink="https://www.instagram.com/p/DM0NGCkBWRG/"
-                data-instgrm-version="14"></blockquote>
-        </div>
+      <div class="comic-frame active">
+          <blockquote class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/DPRQJkikqyW/"
+              data-instgrm-version="14"></blockquote>
+      </div>
 
-        <div class="comic-frame">
-            <blockquote class="instagram-media"
-                data-instgrm-permalink="https://www.instagram.com/p/DBUjpkaT5tf/"
-                data-instgrm-version="14"></blockquote>
-        </div>
+      <div class="comic-frame">
+          <blockquote class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/DPYy0rpAaU1/"
+              data-instgrm-version="14"></blockquote>
+      </div>
 
-        <div class="comic-frame">
-            <blockquote class="instagram-media"
-                data-instgrm-permalink="https://www.instagram.com/p/DGqmr8vhyxk/"
-                data-instgrm-version="14"></blockquote>
-        </div>
+      <div class="comic-frame">
+          <blockquote class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/DM0NGCkBWRG/"
+              data-instgrm-version="14"></blockquote>
+      </div>
 
-        <div class="comic-frame">
-            <blockquote class="instagram-media"
-                data-instgrm-permalink="https://www.instagram.com/p/C6EDO3ySrPZ/"
-                data-instgrm-version="14"></blockquote>
-        </div>
+      <div class="comic-frame">
+          <blockquote class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/DBUjpkaT5tf/"
+              data-instgrm-version="14"></blockquote>
+      </div>
 
-        <div class="comic-frame">
-            <blockquote class="instagram-media"
-                data-instgrm-permalink="https://www.instagram.com/p/CzQaF5AvAnh/"
-                data-instgrm-version="14"></blockquote>
-        </div>
+      <div class="comic-frame">
+          <blockquote class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/DGqmr8vhyxk/"
+              data-instgrm-version="14"></blockquote>
+      </div>
 
-    </div>
+      <div class="comic-frame">
+          <blockquote class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/C6EDO3ySrPZ/"
+              data-instgrm-version="14"></blockquote>
+      </div>
+
+      <div class="comic-frame">
+          <blockquote class="instagram-media"
+              data-instgrm-permalink="https://www.instagram.com/p/CzQaF5AvAnh/"
+              data-instgrm-version="14"></blockquote>
+      </div>
+
+  </div>
 </div>
 
 
 <footer>© 2025 Solasaki Comics</footer>
-...
 
 
-
-  
+<!-- Instagram embed script -->
 <script async src="https://www.instagram.com/embed.js"></script>
 
+<!-- Rotator logic -->
 <script>
   const frames = document.querySelectorAll(".comic-frame");
   let i = 0;
@@ -104,5 +204,6 @@
 
   setInterval(rotateComic, 8000);
 </script>
+
 </body>
 </html>
