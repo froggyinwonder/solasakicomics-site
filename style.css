@@ -539,3 +539,24 @@ footer {
 
 <!-- Instagram embed loader -->
 <script async src="https://www.instagram.com/embed.js"></script>
+.comic-rotator {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;          /* center */
+    position: relative;
+}
+
+.comic-frame {
+    display: none;
+    width: 100%;
+}
+
+.comic-frame.active {
+    display: block;
+}
+
+.comic-title {
+    text-align: center;
+    font-family: "Patrick Hand";
+    margin-bottom: 15px;
+}
