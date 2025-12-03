@@ -1,8 +1,6 @@
 /* =======================================
-   GLOBAL SKETCHBOOK THEME — RESTORED CLEAN VERSION
+   GLOBAL THEME
 ======================================= */
-
-/* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Patrick+Hand&display=swap');
 
 :root {
@@ -14,25 +12,33 @@
   --shadow: rgba(0,0,0,0.06);
 }
 
-/* GLOBAL RESET */
-body, html {
+html.dark {
+  --paper: #181818;
+  --ink: #f2f2f2;
+  --muted: #bbbbbb;
+  --border: rgba(255,255,255,0.2);
+  --shadow: rgba(255,255,255,0.06);
+}
+
+body {
   margin: 0;
-  padding: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: "Inter", sans-serif;
+  font-family: Inter;
   overflow-x: hidden;
 }
 
-/* HEADER — RESTORED */
+/* =======================================
+   HEADER + MOBILE FIX (NO SIDE SCROLL)
+======================================= */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
+  gap: 12px;
+  padding: 14px 16px;
   border-bottom: 2px dashed var(--border);
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(6px);
+  background: var(--paper);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -41,212 +47,133 @@ header {
 .logoarea {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .logoarea img {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 12px;
   border: 2px dashed var(--border);
 }
 
 .logoarea h1 {
-  font-family: "Patrick Hand";
-  font-size: 26px;
   margin: 0;
+  font-size: 22px;
+  font-family: "Patrick Hand";
+}
+
+/* Navigation */
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 100%;
 }
 
 nav a {
   font-family: "Patrick Hand";
-  font-size: 18px;
-  margin-left: 16px;
   color: var(--ink);
   text-decoration: none;
-  padding: 4px 6px;
-  border-radius: 6px;
+  font-size: 18px;
 }
 
-nav a:hover {
-  background: rgba(0,0,0,0.05);
-  color: var(--accent);
+/* Dark mode button */
+.toggle-mode {
+  font-size: 20px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 2px dashed var(--border);
+  background: var(--paper);
+  cursor: pointer;
 }
 
-/* =============================
-   RESTORED HERO WALLPAPER
-============================= */
-/* =============================
-   HERO WALLPAPER — RESTORED
-   ============================= */
+/* =======================================
+   HERO WALLPAPER — LEFT TEXT
+======================================= */
+.hero-wall {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  overflow: hidden;
+  border-bottom: 2px dashed var(--border);
+}
+
 .hero-wallpaper {
   width: 100%;
-  padding: 60px 20px;
-  background-image: url("assets/uploads/wallpaper-soft.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-bottom: 2px dashed var(--border);
-  text-align: center;
+  height: 100%;
+  object-fit: cover;
 }
 
-.hero-overlay {}
-
-.hero-text {
-  font-family: "Patrick Hand";
-  font-size: 32px;
-  background: rgba(255,255,255,0.7);
-  border: 2px dashed var(--border);
+.hero-text-block {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  background: rgba(255,255,255,0.85);
   padding: 10px 18px;
+  border: 2px dashed var(--border);
   border-radius: 12px;
-  display: inline-block;
+}
+
+html.dark .hero-text-block {
+  background: rgba(0,0,0,0.4);
+}
+
+.hero-text-block h2 {
+  margin: 0;
+  font-family: "Patrick Hand";
+  font-size: 26px;
 }
 
 /* MOBILE FIX */
 @media (max-width: 600px) {
-  .hero-wallpaper {
-    padding: 40px 16px;
+  .hero-wall {
+    height: 200px;
   }
-
-  .hero-text {
-    font-size: 24px;
-    padding: 8px 14px;
+  .hero-text-block {
+    left: 12px;
+    bottom: 12px;
+    font-size: 20px;
   }
 }
 
-
-/* ============================
-   COMIC ROTATOR
-============================ */
-
+/* =======================================
+   COMIC OF THE DAY
+======================================= */
 .comic-rotator-wrapper {
   text-align: center;
-  padding: 20px;
-  margin-top: 20px;
+  margin-top: 40px;
 }
 
 .comic-title-box {
   font-family: "Patrick Hand";
-  font-size: 22px;
   padding: 6px 14px;
+  background: var(--paper);
   border: 2px dashed var(--border);
-  background: #fffef9;
   border-radius: 10px;
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .comic-rotator {
-  width: 100%;
-  max-width: 360px;
-  margin: 0 auto;
+  max-width: 380px;
+  margin: auto;
 }
 
-.comic-frame {
-  display: none;
-}
+.comic-frame { display: none; }
+.comic-frame.active { display: block; }
 
-.comic-frame.active {
-  display: block;
-}
-
+/* Instagram responsive */
 blockquote.instagram-media {
   width: 100% !important;
-  max-width: 100% !important;
   margin: 0 auto !important;
 }
 
-/* FOOTER */
+/* =======================================
+   FOOTER
+======================================= */
 footer {
   text-align: center;
   padding: 30px 0;
   color: var(--muted);
-  font-size: 14px;
-  margin-top: 40px;
-}
-
-
-   /* NAVIGATION — FIXED FOR MOBILE */
-nav {
-  display: flex;
-  gap: 16px;
-  white-space: nowrap;      /* prevent wrapping */
-  overflow-x: auto;          /* enable horizontal scroll on small screens */
-  padding-bottom: 4px;
-  scrollbar-width: none;     /* hide scrollbar on Firefox */
-}
-
-nav::-webkit-scrollbar {
-  display: none;             /* hide scrollbar on Chrome/Safari */
-}
-
-nav a {
-  font-family: "Patrick Hand";
-  font-size: 18px;
-  text-decoration: none;
-  color: var(--ink);
-  padding: 6px 8px;
-  border-radius: 6px;
-  flex-shrink: 0;            /* IMPORTANT: keeps items same size, no shrinking */
-}
-
-nav a:hover {
-  background: rgba(0,0,0,0.06);
-  color: var(--accent);
-}
-
-/* MOBILE TWEAK */
-@media (max-width: 600px) {
-  nav a {
-    font-size: 17px;
-    padding: 4px 8px;
-  }
-}
-}
-/* ============================
-   FINAL MOBILE HEADER FIX
-   ============================ */
-@media (max-width: 600px) {
-
-  /* Prevent sideways scrolling globally */
-  body, html {
-    overflow-x: hidden !important;
-  }
-
-  /* Header becomes stacked so nothing overflows */
-  header {
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 0;
-  }
-
-  /* Logo row centered & shrink image */
-  .logoarea {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .logoarea img {
-    width: 40px !important;
-    height: 40px !important;
-  }
-
-  .logoarea h1 {
-    font-size: 20px !important;
-  }
-
-  /* NAV WRAPS PROPERLY */
-  nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-  }
-
-  nav a {
-    font-size: 16px;
-    margin: 0 !important;
-  }
 }
