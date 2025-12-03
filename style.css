@@ -303,3 +303,24 @@ header nav {
   margin-top: 20px;
   margin-bottom: 20px;
 }
+/* ===============================
+   CENTER — COMICS PAGE HEADING + BUTTON
+   =============================== */
+
+/* Center the "Comics" heading */
+.comics-page-title {
+  text-align: center;
+  font-family: "Patrick Hand";
+  font-size: 32px;
+  margin: 20px 0;
+}
+
+/* Center the Random Comic button */
+.random-btn-wrapper {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.random-btn {
+  margin: 0 auto;
+}
