@@ -324,3 +324,25 @@ header nav {
 .random-btn {
   margin: 0 auto;
 }
+/* ============================
+   DARK MODE SWITCH BUTTON
+============================ */
+
+.toggle-mode {
+  font-size: 20px;
+  background: rgba(255,255,255,0.9);
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.toggle-mode:hover {
+  background: rgba(0,0,0,0.07);
+}
+
+.dark-mode .toggle-mode {
+  background: rgba(0,0,0,0.6);
+  color: white;
+}
