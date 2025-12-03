@@ -346,3 +346,8 @@ header nav {
   background: rgba(0,0,0,0.6);
   color: white;
 }
+/* Make all menu links bold again */
+nav a {
+    font-weight: 600;          /* semi-bold */
+    letter-spacing: 0.3px;     /* cleaner look */
+}
