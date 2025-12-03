@@ -1,17 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>About — Solasaki Comics</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="fade">
 
 <header>
   <div class="logoarea">
-    <img src="assets/uploads/IMG_0079.jpeg" style="width:48px;height:48px;border-radius:12px;object-fit:cover;">
+    <img src="assets/uploads/IMG_0079.jpeg">
     <h1>Solasaki Comics</h1>
   </div>
 
@@ -24,10 +22,8 @@
   </nav>
 </header>
 
-
-<div class="page slide-up" style="max-width:900px;margin:auto;padding:20px;">
-
-  <h2>About</h2>
+<div class="page slide-up">
+  <h2>About Me</h2>
 
   <p>
     Hello! Welcome to the yellow world. I'm Surbhi — creator of Solasaki Comics.<br>
@@ -35,209 +31,153 @@
     You can also read my writeups if you have nothing better to do.
   </p>
 
+  <hr>
 
-  <!-- =======================================================
-       SKETCHPAD + PUBLIC DOODLES
-       ======================================================= -->
-  <div class="sketch-wrapper">
-    <h3>Draw something for the lazy artist ✏️</h3>
+  <h3>Draw Something!</h3>
+  <p>Draw something for the artist or yourself. Something fun ✨</p>
 
-    <canvas id="sketchCanvas"></canvas>
+  <canvas id="drawpad" width="350" height="350"></canvas>
 
-    <button id="saveDoodle">Save Doodle</button>
+  <button id="save-btn">Save Doodle</button>
 
-    <p style="color:var(--muted);font-size:12px;margin-top:6px;">
-      Your doodle will become a tiny Post-it & appear for everyone ✨
-    </p>
-
-    <div id="doodleWall"></div>
-  </div>
-
+  <h3>Community Doodles</h3>
+  <div id="doodle-wall"></div>
 </div>
 
+<footer>© 2025 Solasaki Comics</footer>
 
-<footer>© <span id="year"></span> Solasaki Comics</footer>
-<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+<!-- SUPABASE + DRAW SCRIPT -->
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+  /* ----------- YOUR SUPABASE PROJECT DETAILS ----------- */
+  const SUPABASE_URL = "https://rgxtvwnfqglsxnmvkkus.supabase.co";
 
-<!-- =======================================================
-     SKETCHPAD + DOODLE WALL SCRIPT
-     ======================================================= -->
-<script>
-// CANVAS SETUP
-const canvas = document.getElementById("sketchCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = 300;
-canvas.height = 300;
-ctx.lineWidth = 3;
-ctx.lineCap = "round";
-ctx.strokeStyle = "#000";
+  const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJneHR2d25mcWdsc3hubXZra3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NjEwNzksImV4cCI6MjA4MDMzNzA3OX0.twtdhIMF4xnaBQsird8CyEb3g3Kh8bI5REChohdyGwo";
 
-// DRAWING LOGIC
-let drawing = false;
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function getPos(e) {
-  const r = canvas.getBoundingClientRect();
-  if (e.touches) {
+  /* ----------- DRAWING SETUP ----------- */
+  const canvas = document.getElementById("drawpad");
+  const ctx = canvas.getContext("2d");
+  let drawing = false;
+
+  // mouse drawing
+  canvas.addEventListener("mousedown", start);
+  canvas.addEventListener("mouseup", end);
+  canvas.addEventListener("mousemove", draw);
+
+  // touch drawing (mobile)
+  canvas.addEventListener("touchstart", e => start(touchToMouse(e)));
+  canvas.addEventListener("touchend", end);
+  canvas.addEventListener("touchmove", e => draw(touchToMouse(e)));
+
+  function touchToMouse(e) {
+    const touch = e.touches[0];
     return {
-      x: e.touches[0].clientX - r.left,
-      y: e.touches[0].clientY - r.top
+      clientX: touch.clientX,
+      clientY: touch.clientY
     };
   }
-  return {
-    x: e.clientX - r.left,
-    y: e.clientY - r.top
-  };
-}
 
-canvas.addEventListener("mousedown", e => {
-  drawing = true;
-  const p = getPos(e);
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-});
+  function start(e) { drawing = true; draw(e); }
+  function end() { drawing = false; ctx.beginPath(); }
 
-canvas.addEventListener("mousemove", e => {
-  if (!drawing) return;
-  const p = getPos(e);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
-});
+  function draw(e) {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#333";
 
-canvas.addEventListener("mouseup", () => drawing = false);
-canvas.addEventListener("mouseleave", () => drawing = false);
+    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  }
 
-// TOUCH
-canvas.addEventListener("touchstart", e => {
-  drawing = true;
-  const p = getPos(e);
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-});
+  /* ----------- SAVE DOODLE ----------- */
+  document.getElementById("save-btn").addEventListener("click", async () => {
+    const dataUrl = canvas.toDataURL("image/png");
+    const blob = await (await fetch(dataUrl)).blob();
+    const filename = `doodle-${Date.now()}.png`;
 
-canvas.addEventListener("touchmove", e => {
-  if (!drawing) return;
-  const p = getPos(e);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
-  e.preventDefault();
-});
+    let { error } = await supabase.storage
+      .from("doodles")
+      .upload(filename, blob, { contentType: "image/png" });
 
-canvas.addEventListener("touchend", () => drawing = false);
+    if (error) {
+      alert("Error saving doodle!");
+      return;
+    }
 
-
-// SAVE DOODLE
-document.getElementById("saveDoodle").onclick = async () => {
-  const imageBase64 = canvas.toDataURL("image/png");
-
-  const res = await fetch("/api/save-doodle", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ imageBase64 })
+    alert("Doodle saved! ✨");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    loadDoodles();
   });
 
-  const json = await res.json();
+  /* ----------- LOAD DOODLES FROM SUPABASE ----------- */
+  async function loadDoodles() {
+    const wall = document.getElementById("doodle-wall");
+    wall.innerHTML = "";
 
-  if (json.url) {
-    addDoodle(json.url);
-    alert("Doodle saved!");
+    let { data } = await supabase.storage.from("doodles").list("");
+
+    data.forEach(file => {
+      const url =
+        `${SUPABASE_URL}/storage/v1/object/public/doodles/${file.name}`;
+      const img = document.createElement("img");
+      img.src = url;
+      img.className = "tiny-doodle";
+      wall.appendChild(img);
+    });
   }
-};
 
-
-// LOAD DOODLES FROM SERVER
-async function loadDoodles() {
-  const res = await fetch("/api/list-doodles");
-  const data = await res.json();
-
-  const wall = document.getElementById("doodleWall");
-  wall.innerHTML = "";
-
-  data.doodles.forEach(url => addDoodle(url));
-}
-
-// AUTO-REFRESH EVERY 10s
-setInterval(loadDoodles, 10000);
-loadDoodles();
-
-
-// POST-IT STYLE RANDOM DOODLE
-function addDoodle(url) {
-  const wall = document.getElementById("doodleWall");
-  const d = document.createElement("img");
-  d.src = url;
-
-  d.className = "postIt";
-
-  // random rotation
-  d.style.transform = `rotate(${(Math.random()*14)-7}deg)`;
-
-  // pastel backgrounds
-  const colors = ["#fffbc8", "#fff4e6", "#e9ffd8", "#e8f5ff"];
-  d.style.background = colors[Math.floor(Math.random()*colors.length)];
-
-  // random position
-  d.style.left = Math.random()*80 + "%";
-  d.style.top = Math.random()*80 + "%";
-
-  wall.appendChild(d);
-}
+  loadDoodles();
 </script>
 
-
-<!-- =======================================================
-     CSS for Sketchpad & Post-its
-     ======================================================= -->
+<!-- Doodle Wall Styles -->
 <style>
-.sketch-wrapper {
-  margin-top: 30px;
-  padding: 20px;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-}
+  #drawpad {
+    background: #fff;
+    border: 2px dashed #aaa;
+    border-radius: 8px;
+    touch-action: none;
+    width: 100%;
+    max-width: 350px;
+  }
 
-#sketchCanvas {
-  display: block;
-  margin: 12px auto;
-  border: 2px solid var(--border);
-  background: #fff8d5;
-  border-radius: 12px;
-  touch-action: none;
-}
+  #save-btn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: #b88fbf;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+  }
 
-#saveDoodle {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent);
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  display: block;
-  margin: 10px auto;
-}
+  #doodle-wall {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+  }
 
-#doodleWall {
-  position: relative;
-  width: 100%;
-  height: 300px;
-  margin-top: 25px;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  background: var(--paper);
-  overflow: hidden;
-}
+  .tiny-doodle {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    opacity: 0.85;
+    transition: 0.3s;
+  }
 
-/* Small Post-it doodles */
-.postIt {
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  padding: 6px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  object-fit: cover;
-}
+  .tiny-doodle:hover {
+    transform: scale(1.2);
+    opacity: 1;
+  }
 </style>
 
 </body>
