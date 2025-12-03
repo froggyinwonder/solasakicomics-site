@@ -23,12 +23,24 @@
             background: #fdf9f3;
             border-radius: 8px;
             touch-action: none;
+            transition: transform 0.1s ease-out, box-shadow 0.4s ease-out;
+        }
+
+        /* Wobble while drawing */
+        #drawCanvas.wobble {
+            transform: rotate(-1deg);
+        }
+
+        /* Glow when saved */
+        #drawCanvas.glow {
+            box-shadow: 0 0 18px #d2b2ff;
         }
 
         .tool-buttons {
             display: flex;
             gap: 12px;
             margin-top: 15px;
+            flex-wrap: wrap;
         }
 
         .tool-buttons button {
@@ -38,180 +50,253 @@
             cursor: pointer;
         }
 
-        .save-btn {
-            background: #b48fd5;
-            color: white;
+        .save-btn { background: #b48fd5; color: white; }
+        .tool-btn { background: #eee; }
+        .clear-btn { background: #ffc8c8; }
+
+        /* Visitors' doodles */
+        .doodles-grid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 12px;
         }
 
-        .tool-btn {
-            background: #eee;
+        .doodles-grid img {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid #e5dacd;
         }
     </style>
 </head>
 
 <body>
-    <header>
-        <a href="index.html"><h1>Solasaki Comics</h1></a>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="comics.html">Comics</a>
-            <a href="writeups.html">Write-ups</a>
-            <a class="active" href="#">About</a>
-            <a href="contact.html">Contact</a>
-        </nav>
-    </header>
+<header>
+    <a href="index.html"><h1>Solasaki Comics</h1></a>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="comics.html">Comics</a>
+        <a href="writeups.html">Write-ups</a>
+        <a class="active" href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
 
-    <main>
-        <h2>About</h2>
+<main>
+    <h2>About</h2>
 
-        <p>Hello! Welcome to the yellow world. I'm Surbhi — creator of Solasaki Comics.  
-        I make simple comics inspired by my weird observations.  
-        You can also read my writeups if you have nothing better to do.</p>
+    <p>Hello! Welcome to the yellow world. I'm Surbhi — creator of Solasaki Comics.  
+    I make simple comics inspired by my weird observations.  
+    You can also read my writeups if you have nothing better to do.</p>
 
-        <h3>Draw something for the artist or for yourself!!</h3>
+    <h3>Draw something for the artist or for yourself!!</h3>
 
-        <div class="draw-container">
-            <canvas id="drawCanvas"></canvas>
+    <div class="draw-container">
+        <canvas id="drawCanvas"></canvas>
 
-            <div class="tool-buttons">
-                <button class="tool-btn" id="pencilBtn">✏️ Pencil</button>
-                <button class="tool-btn" id="eraserBtn">🧽 Eraser</button>
-                <button class="tool-btn" id="undoBtn">↩️ Undo</button>
-                <button class="save-btn" id="saveBtn">Save Doodle</button>
-            </div>
+        <div class="tool-buttons">
+            <button class="tool-btn" id="pencilBtn">✏️ Pencil</button>
+            <button class="tool-btn" id="eraserBtn">🧽 Eraser</button>
+            <button class="tool-btn" id="undoBtn">↩️ Undo</button>
+            <button class="clear-btn" id="clearBtn">🗑️ Clear</button>
+            <button class="save-btn" id="saveBtn">Save Doodle</button>
         </div>
+    </div>
 
-        <h3>Visitors' doodles</h3>
-        <div id="doodlesGrid" class="doodles-grid"></div>
-    </main>
+    <h3>Visitors' doodles</h3>
+    <div id="doodlesGrid" class="doodles-grid"></div>
+</main>
 
-    <footer>
-        <p>© 2025 Solasaki Comics</p>
-    </footer>
+<footer>
+    <p>© 2025 Solasaki Comics</p>
+</footer>
 
-    <!-- Supabase Client -->
-    <script type="module">
-        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-        const supabase = createClient(
-            "https://rgxtvwnfqglsxnmvkkus.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJneHR2d25mcWdsc3hubXZra3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NjEwNzksImV4cCI6MjA4MDMzNzA3OX0.twtdhIMF4xnaBQsird8CyEb3g3Kh8bI5REChohdyGwo"
-        );
+<!-- ⭐ FULL JS WITH SUPABASE + DRAW ENGINE ⭐ -->
+<script type="module">
+    /* ---- Supabase setup with YOUR real credentials ---- */
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-        // Canvas Setup
-        const canvas = document.getElementById("drawCanvas");
-        const ctx = canvas.getContext("2d");
+    const supabase = createClient(
+        "https://rgxtvwnfqglsxnmvkkus.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJneHR2d25mcWdsc3hubXZra3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NjEwNzksImV4cCI6MjA4MDMzNzA3OX0.twtdhIMF4xnaBQsird8CyEb3g3Kh8bI5REChohdyGwo"
+    );
 
-        function resizeCanvas() {
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-        }
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
+    /* ---------- Canvas Drawing Logic ---------- */
+    const canvas = document.getElementById("drawCanvas");
+    const ctx = canvas.getContext("2d");
 
-        let drawing = false;
-        let erasing = false;
-        let strokes = [];
-        let currentStroke = [];
+    function resizeCanvas() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
 
-        function startDraw(e) {
-            drawing = true;
-            currentStroke = [];
-            draw(e);
-        }
+    let drawing = false;
+    let erasing = false;
+    let strokes = [];
+    let currentStroke = [];
 
-        function endDraw() {
-            drawing = false;
-            if (currentStroke.length > 0) strokes.push(currentStroke);
-        }
+    const funnyMessages = [
+      "That one's pretty!",
+      "Could do better… but I still like it.",
+      "The artist appreciates this one.",
+      "Ahhh… try better next time.",
+      "The world has never seen such talent (please never draw again).",
+      "The moon criticises it quietly.",
+      "Your doodle winked at me. Concerned.",
+      "Beautiful! I will frame it in my imagination.",
+      "Did your finger slip or is this intentional?",
+      "My eyes… they are confused but supportive.",
+      "Modern art would sell this for ₹90,000.",
+      "Picasso called. He wants tips from you.",
+      "This belongs in a museum. A very small museum.",
+      "Interesting… very interesting… worryingly interesting.",
+      "I can’t tell what it is, but it feels emotional.",
+      "Bold choice. Very bold.",
+      "Masterpiece? Maybe. Chaos? Definitely.",
+      "Your doodle is now canon in the Solasaki universe.",
+      "Even the yellow balls are gossiping about this.",
+      "Art police approves. Barely."
+    ];
 
-        function draw(e) {
-            if (!drawing) return;
+    function showFunnyMessage() {
+        alert(funnyMessages[Math.floor(Math.random() * funnyMessages.length)]);
+    }
 
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const pt = e.touches ? e.touches[0] : e;
+        return { x: pt.clientX - rect.left, y: pt.clientY - rect.top };
+    }
 
-            ctx.lineWidth = erasing ? 18 : 3;
-            ctx.lineCap = "round";
-            ctx.strokeStyle = erasing ? "#fdf9f3" : "#333";
+    function startDraw(e) {
+        drawing = true;
+        currentStroke = [];
+        canvas.classList.add("wobble");
+        const p = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        currentStroke.push({ ...p, erasing });
+    }
 
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
+    function draw(e) {
+        if (!drawing) return;
 
-            currentStroke.push({ x, y, erasing });
-        }
+        const p = getPos(e);
+        ctx.lineWidth = erasing ? 20 : 3;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = erasing ? "#fdf9f3" : "#333";
 
-        canvas.addEventListener("mousedown", startDraw);
-        canvas.addEventListener("mouseup", endDraw);
-        canvas.addEventListener("mousemove", draw);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
 
-        canvas.addEventListener("touchstart", startDraw);
-        canvas.addEventListener("touchend", endDraw);
-        canvas.addEventListener("touchmove", draw);
+        currentStroke.push({ ...p, erasing });
+    }
 
-        // Tools
-        document.getElementById("pencilBtn").onclick = () => { erasing = false; };
-        document.getElementById("eraserBtn").onclick = () => { erasing = true; };
+    function endDraw() {
+        drawing = false;
+        canvas.classList.remove("wobble");
+        if (currentStroke.length > 0) strokes.push(currentStroke);
+        ctx.beginPath();
+    }
 
-        document.getElementById("undoBtn").onclick = () => {
-            strokes.pop();
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            redraw();
-        };
+    /* Event Listeners */
+    canvas.addEventListener("mousedown", startDraw);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", endDraw);
+    canvas.addEventListener("mouseleave", endDraw);
 
-        function redraw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let stroke of strokes) {
-                ctx.beginPath();
-                for (let i = 0; i < stroke.length; i++) {
-                    ctx.lineWidth = stroke[i].erasing ? 18 : 3;
-                    ctx.strokeStyle = stroke[i].erasing ? "#fdf9f3" : "#333";
-                    if (i === 0) ctx.moveTo(stroke[i].x, stroke[i].y);
-                    else ctx.lineTo(stroke[i].x, stroke[i].y);
-                    ctx.stroke();
-                }
+    canvas.addEventListener("touchstart", startDraw);
+    canvas.addEventListener("touchmove", draw);
+    canvas.addEventListener("touchend", endDraw);
+    canvas.addEventListener("touchcancel", endDraw);
+
+    /* Tools */
+    pencilBtn.onclick = () => erasing = false;
+    eraserBtn.onclick = () => erasing = true;
+
+    undoBtn.onclick = () => {
+        strokes.pop();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        redraw();
+    };
+
+    clearBtn.onclick = () => {
+        strokes = [];
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    function redraw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let stroke of strokes) {
+            for (let i = 0; i < stroke.length; i++) {
+                const p = stroke[i];
+                ctx.lineWidth = p.erasing ? 20 : 3;
+                ctx.strokeStyle = p.erasing ? "#fdf9f3" : "#333";
+                if (i === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+                ctx.stroke();
             }
             ctx.beginPath();
         }
+    }
 
-        // Save to Supabase
-        document.getElementById("saveBtn").onclick = async () => {
-            canvas.toBlob(async (blob) => {
-                const fileName = `doodle-${Date.now()}.png`;
+    /* Save Doodle */
+    saveBtn.onclick = async () => {
+        canvas.classList.add("glow");
+        setTimeout(() => canvas.classList.remove("glow"), 600);
 
-                const { error } = await supabase.storage
-                    .from("doodles")
-                    .upload(fileName, blob);
+        canvas.toBlob(async (blob) => {
+            const filename = `doodle-${Date.now()}.png`;
 
-                if (error) alert("Error saving doodle!");
-                else alert("Doodle saved!");
-            });
-        };
+            const { error } = await supabase.storage
+                .from("doodles")
+                .upload(filename, blob);
 
-        // Load doodles grid
-        async function loadDoodles() {
-            const { data } = await supabase.storage.from("doodles").list();
+            if (!error) {
+                showFunnyMessage();
+                loadDoodles();
+                cleanupOldDoodles();
+            }
+        });
+    };
 
-            const grid = document.getElementById("doodlesGrid");
-            grid.innerHTML = "";
+    /* Auto delete old doodles if > 50MB */
+    async function cleanupOldDoodles() {
+        const { data } = await supabase.storage.from("doodles").list();
 
-            data.reverse().forEach(file => {
-                const url =
-                    `https://rgxtvwnfqglsxnmvkkus.supabase.co/storage/v1/object/public/doodles/${file.name}`;
+        let total = 0;
+        data.forEach(f => total += f.metadata.size);
 
-                const img = document.createElement("img");
-                img.src = url;
-                img.className = "doodle-thumb";
-
-                grid.appendChild(img);
-            });
+        if (total > 50 * 1024 * 1024) {
+            const oldest = data.sort((a,b)=>a.created_at>b.created_at?1:-1)[0];
+            await supabase.storage.from("doodles").remove([oldest.name]);
         }
+    }
 
-        loadDoodles();
-    </script>
+    /* Load visitor doodles */
+    async function loadDoodles() {
+        const { data } = await supabase.storage.from("doodles").list();
+        const grid = document.getElementById("doodlesGrid");
+
+        grid.innerHTML = "";
+
+        data.reverse().forEach(file => {
+            const url =
+                `https://rgxtvwnfqglsxnmvkkus.supabase.co/storage/v1/object/public/doodles/${file.name}`;
+
+            const img = document.createElement("img");
+            img.src = url;
+            grid.appendChild(img);
+        });
+    }
+
+    loadDoodles();
+</script>
 
 </body>
 </html>
