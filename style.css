@@ -560,3 +560,48 @@ footer {
     font-family: "Patrick Hand";
     margin-bottom: 15px;
 }
+/* Comic of the Day Box */
+.comic-title-box {
+    text-align: center;
+    font-family: "Patrick Hand";
+    font-size: 26px;
+    padding: 8px 14px;
+    border: 2px dashed var(--border);
+    display: inline-block;
+    margin: 10px auto 18px auto;
+    background: #fffef9;
+    border-radius: 10px;
+}
+
+/* Center everything */
+.comic-rotator-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.comic-rotator {
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
+}
+
+/* Instagram embeds need this */
+.comic-frame {
+    display: none;
+}
+
+.comic-frame.active {
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .comic-title-box {
+        font-size: 22px;
+        padding: 6px 12px;
+    }
+
+    .comic-rotator {
+        max-width: 320px;
+    }
+}
