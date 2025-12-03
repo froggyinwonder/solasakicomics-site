@@ -25,69 +25,62 @@
 <section class="hero slide-up">
   <img src="assets/uploads/IMG_0079.jpeg">
   <h2>Welcome to my sketchbook</h2>
-  <section class="comic-rotator-section">
-  <h2 class="comic-rotator-title">Comic of the Day ✦</h2>
+  <h2 class="comic-title">Comic of the Day ✦</h2>
 
-  <div class="comic-rotator">
+<div class="comic-rotator">
     <div class="comic-frame active">
-      <blockquote class="instagram-media"
-        data-instgrm-permalink="https://www.instagram.com/p/DPRQJkikqyW/"
-        data-instgrm-version="14"></blockquote>
+        <blockquote class="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/p/DPRQJkikqyW/"
+            data-instgrm-version="14"></blockquote>
     </div>
 
     <div class="comic-frame">
-      <blockquote class="instagram-media"
-        data-instgrm-permalink="https://www.instagram.com/p/DPYy0rpAaU1/"
-        data-instgrm-version="14"></blockquote>
+        <blockquote class="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/p/DPYy0rpAaU1/"
+            data-instgrm-version="14"></blockquote>
     </div>
 
     <div class="comic-frame">
-      <blockquote class="instagram-media"
-        data-instgrm-permalink="https://www.instagram.com/p/DM0NGCkBWRG/"
-        data-instgrm-version="14"></blockquote>
+        <blockquote class="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/p/DM0NGCkBWRG/"
+            data-instgrm-version="14"></blockquote>
     </div>
 
     <div class="comic-frame">
-      <blockquote class="instagram-media"
-        data-instgrm-permalink="https://www.instagram.com/p/DBUjpkaT5tf/"
-        data-instgrm-version="14"></blockquote>
+        <blockquote class="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/p/DBUjpkaT5tf/"
+            data-instgrm-version="14"></blockquote>
     </div>
 
     <div class="comic-frame">
-      <blockquote class="instagram-media"
-        data-instgrm-permalink="https://www.instagram.com/p/DGqmr8vhyxk/"
-        data-instgrm-version="14"></blockquote>
+        <blockquote class="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/p/DGqmr8vhyxk/"
+            data-instgrm-version="14"></blockquote>
     </div>
 
     <div class="comic-frame">
-      <blockquote class="instagram-media"
-        data-instgrm-permalink="https://www.instagram.com/p/C6EDO3ySrPZ/"
-        data-instgrm-version="14"></blockquote>
+        <blockquote class="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/p/C6EDO3ySrPZ/"
+            data-instgrm-version="14"></blockquote>
     </div>
 
     <div class="comic-frame">
-      <blockquote class="instagram-media"
-        data-instgrm-permalink="https://www.instagram.com/p/CzQaF5AvAnh/"
-        data-instgrm-version="14"></blockquote>
+        <blockquote class="instagram-media"
+            data-instgrm-permalink="https://www.instagram.com/p/CzQaF5AvAnh/"
+            data-instgrm-version="14"></blockquote>
     </div>
-  </div>
-</section>
+</div>
 
-<!-- Instagram embed loader -->
-<script async src="https://www.instagram.com/embed.js"></script>
 
-  <div class="btnrow">
-    <a class="button" href="comics.html">Read Comics</a>
-    <a class="button" href="writeups.html">Daily Write-ups</a>
-  </div>
-</section>
 
 <footer>© 2025 Solasaki Comics</footer>
 ...
-<!-- Instagram embed loader -->
+
+
+
+  
 <script async src="https://www.instagram.com/embed.js"></script>
 
-<!-- 🔥 Comic Rotator Script — Add here -->
 <script>
   const frames = document.querySelectorAll(".comic-frame");
   let i = 0;
@@ -96,12 +89,10 @@
     frames[i].classList.remove("active");
     i = (i + 1) % frames.length;
     frames[i].classList.add("active");
+    instgrm.Embeds.process();
   }
 
-  setInterval(rotateComic, 6000); // 6 seconds
+  setInterval(rotateComic, 8000);
 </script>
-
-</body>
-</html>
 </body>
 </html>
