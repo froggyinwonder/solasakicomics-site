@@ -19,6 +19,7 @@
     <a href="writeups.html">Write-ups</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
+    <button class="toggle-mode" onclick="toggleMode()">🌙</button>
   </nav>
 </header>
 
@@ -36,6 +37,22 @@
   </div>
 </div>
 <footer>© 2025 Solasaki Comics</footer>
+<script>
+function toggleMode() {
+  document.body.classList.toggle("dark-mode");
 
+  // Save mode
+  if (document.body.classList.contains("dark-mode")) {
+    localStorage.setItem("mode", "dark");
+  } else {
+    localStorage.setItem("mode", "light");
+  }
+}
+
+// Load saved preference
+if (localStorage.getItem("mode") === "dark") {
+  document.body.classList.add("dark-mode");
+}
+</script>
 </body>
 </html>
