@@ -18,41 +18,44 @@
     <a href="comics.html">Comics</a>
     <a href="writeups.html">Write-ups</a>
     <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-    <button class="toggle-mode" onclick="toggleMode()">🌙</button>
+    <a class="active" href="contact.html">Contact</a>
   </nav>
+
+  <!-- dark mode button OUTSIDE nav (same as index) -->
+  <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
 <div class="page slide-up">
-<h2 class="contact-page-title">Contact</h2>
+  <h2 class="contact-page-title">Contact</h2>
 
-<div class="contact-page">
-  <div class="contact-wrapper">
-      <form>
-          <input type="text" placeholder="Your name">
-          <input type="email" placeholder="Email address">
-          <textarea placeholder="Your message" rows="4"></textarea>
-          <button type="submit">Send</button>
-      </form>
+  <div class="contact-page">
+    <div class="contact-wrapper">
+        <form>
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <textarea placeholder="Your message" rows="4"></textarea>
+            <button type="submit">Send</button>
+        </form>
+    </div>
   </div>
 </div>
+
 <footer>© 2025 Solasaki Comics</footer>
+
+<!-- correct dark mode script -->
 <script>
 function toggleMode() {
-  document.body.classList.toggle("dark-mode");
-
-  // Save mode
-  if (document.body.classList.contains("dark-mode")) {
-    localStorage.setItem("mode", "dark");
-  } else {
-    localStorage.setItem("mode", "light");
-  }
+  document.documentElement.classList.toggle("dark");
+  localStorage.setItem("mode",
+      document.documentElement.classList.contains("dark") ? "dark" : "light"
+  );
 }
 
-// Load saved preference
+// Load saved mode
 if (localStorage.getItem("mode") === "dark") {
-  document.body.classList.add("dark-mode");
+  document.documentElement.classList.add("dark");
 }
 </script>
+
 </body>
 </html>
