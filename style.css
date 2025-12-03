@@ -197,3 +197,11 @@ header nav a {
     font-size: 20px;  /* Optional: slightly bigger for desktop */
   }
 }
+/* Prevent ANY element from stretching the layout on mobile */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+html, body {
+  overflow-x: hidden !important;
+}
