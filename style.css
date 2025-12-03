@@ -702,53 +702,113 @@ footer {
    CLEAN PAPER HERO BANNER
    ======================================= */
 
-.hero-paper {
+/* ========================================
+   HERO WALLPAPER — PREMIUM ART STYLE
+   ======================================== */
+
+/* Full wallpaper hero */
+.hero-wallpaper {
   width: 100%;
-  padding: 40px 20px;
+  height: 280px;
   background-image: url("assets/uploads/wallpaper-soft.jpg"); /* your wallpaper */
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-
-  border-bottom: 2px dashed var(--border);
-  display: flex;
-  justify-content: center;
+  position: relative;
+  border-bottom: 3px dashed var(--border);
+  overflow: visible;
 }
 
+/* Left vertical colored bar (Saatchi style) */
+.left-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16%;
+  height: 100%;
+  background: #f3e29d;
+  border-right: 3px dashed var(--border);
+}
+
+/* Container inside wallpaper */
 .hero-inner {
-  text-align: center;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding-left: 20px;
 }
 
-.hero-character {
+/* Doodle circle (half in / half out) */
+.hero-doodle-circle {
   width: 160px;
-  max-width: 60%;
-  opacity: 0.95;
-  display: block;
-  margin: 0 auto 12px auto;
-  filter: drop-shadow(0px 3px 6px rgba(0,0,0,0.08));
+  height: 160px;
+  border-radius: 50%;
+  border: 3px dashed var(--border);
+  background: white;
+  padding: 8px;
+
+  /* overlap */
+  position: relative;
+  top: 70px;
+
+  /* soft shadow */
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+
+  /* floating animation */
+  animation: floaty 4s ease-in-out infinite alternate;
 }
 
-.hero-paper h2 {
+/* floating animation */
+@keyframes floaty {
+  from { transform: translateY(0px); }
+  to   { transform: translateY(-6px); }
+}
+
+/* Title below doodle */
+.hero-title-below {
+  margin-top: 90px;
+  width: 90%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
   font-family: "Patrick Hand";
-  font-size: 30px;
-  background: rgba(255,255,255,0.75);
-  border: 2px dashed var(--border);
-  padding: 6px 14px;
-  border-radius: 12px;
+  font-size: 32px;
+  text-align: left;
+
+  /* hand-drawn bubble style */
+  background: #fffef8;
+  padding: 8px 16px;
+  border: 3px dashed var(--border);
+  border-radius: 14px;
   display: inline-block;
-  margin: 0;
 }
 
-/* Mobile refinement */
+
+/* ======================
+   MOBILE FRIENDLY
+   ====================== */
+
 @media (max-width: 600px) {
-  .hero-character {
-    width: 120px;
+
+  .hero-wallpaper {
+    height: 220px;
   }
-  .hero-paper h2 {
-    font-size: 24px;
-    padding: 6px 12px;
+
+  .left-accent {
+    width: 22%;
   }
-  .hero-paper {
-    padding: 30px 10px;
+
+  .hero-doodle-circle {
+    width: 130px;
+    height: 130px;
+    top: 60px;
+  }
+
+  .hero-title-below {
+    font-size: 26px;
+    margin-top: 70px;
   }
 }
