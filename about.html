@@ -3,6 +3,42 @@
 <head>
   <title>About — Solasaki Comics</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    #sketchpad {
+      width: 100%;
+      max-width: 500px;
+      height: 300px;
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      background: #fff;
+      touch-action: none;
+    }
+
+    #saveDoodle {
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: #d9b3ff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #doodleList {
+      margin-top: 25px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tiny-doodle {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+  </style>
 </head>
 
 <body class="fade">
@@ -17,168 +53,155 @@
     <a href="index.html">Home</a>
     <a href="comics.html">Comics</a>
     <a href="writeups.html">Write-ups</a>
-    <a href="about.html" class="active">About</a>
+    <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
 </header>
 
 <div class="page slide-up">
-  <h2>About Me</h2>
 
-  <p>
-    Hello! Welcome to the yellow world. I'm Surbhi — creator of Solasaki Comics.<br>
-    I make simple comics inspired by my weird observations.<br>
-    You can also read my writeups if you have nothing better to do.
-  </p>
+  <h2>About</h2>
 
-  <hr>
+  <p>Hello! Welcome to the yellow world. I'm Surbhi — creator of Solasaki Comics.<br>
+  I make simple comics inspired by my weird observations.<br>
+  You can also read my writeups if you have nothing better to do.</p>
 
-  <h3>Draw Something!</h3>
-  <p>Draw something for the artist or yourself. Something fun ✨</p>
+  <h3>Draw something!</h3>
 
-  <canvas id="drawpad" width="350" height="350"></canvas>
+  <canvas id="sketchpad" width="500" height="300"></canvas>
+  <br>
+  <button id="saveDoodle">Save Doodle</button>
 
-  <button id="save-btn">Save Doodle</button>
+  <h3>Visitors' doodles</h3>
+  <div id="doodleList"></div>
 
-  <h3>Community Doodles</h3>
-  <div id="doodle-wall"></div>
 </div>
 
 <footer>© 2025 Solasaki Comics</footer>
 
-<!-- SUPABASE + DRAW SCRIPT -->
+
+<!-- ✅ DOODLES + SUPABASE SCRIPT -->
 <script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  /* ----------- YOUR SUPABASE PROJECT DETAILS ----------- */
-  const SUPABASE_URL = "https://rgxtvwnfqglsxnmvkkus.supabase.co";
+// ⭐ Replace with your actual values (you already shared them)
+const SUPABASE_URL = "https://rgxtvwnfqglsxnmvkkus.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJneHR2d25mcWdsc3hubXZra3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NjEwNzksImV4cCI6MjA4MDMzNzA3OX0.twtdhIMF4xnaBQsird8CyEb3g3Kh8bI5REChohdyGwo";
 
-  const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJneHR2d25mcWdsc3hubXZra3VzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NjEwNzksImV4cCI6MjA4MDMzNzA3OX0.twtdhIMF4xnaBQsird8CyEb3g3Kh8bI5REChohdyGwo";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const MAX_DOODLES = 20; // ⭐ Doodles auto-delete when more than this
 
-  /* ----------- DRAWING SETUP ----------- */
-  const canvas = document.getElementById("drawpad");
-  const ctx = canvas.getContext("2d");
-  let drawing = false;
+// HTML elements
+const canvas = document.getElementById("sketchpad");
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
+const saveBtn = document.getElementById("saveDoodle");
+const listArea = document.getElementById("doodleList");
 
-  // mouse drawing
-  canvas.addEventListener("mousedown", start);
-  canvas.addEventListener("mouseup", end);
-  canvas.addEventListener("mousemove", draw);
+let drawing = false;
 
-  // touch drawing (mobile)
-  canvas.addEventListener("touchstart", e => start(touchToMouse(e)));
-  canvas.addEventListener("touchend", end);
-  canvas.addEventListener("touchmove", e => draw(touchToMouse(e)));
+// --- DRAWING SETUP ---
+canvas.addEventListener("mousedown", start);
+canvas.addEventListener("mouseup", stop);
+canvas.addEventListener("mouseout", stop);
+canvas.addEventListener("mousemove", draw);
 
-  function touchToMouse(e) {
-    const touch = e.touches[0];
-    return {
-      clientX: touch.clientX,
-      clientY: touch.clientY
-    };
-  }
+canvas.addEventListener("touchstart", e => start(e.touches[0]));
+canvas.addEventListener("touchend", stop);
+canvas.addEventListener("touchmove", e => draw(e.touches[0]));
 
-  function start(e) { drawing = true; draw(e); }
-  function end() { drawing = false; ctx.beginPath(); }
+function start(e) {
+  drawing = true;
+  draw(e);
+}
 
-  function draw(e) {
-    if (!drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.strokeStyle = "#333";
+function stop() {
+  drawing = false;
+  ctx.beginPath();
+}
 
-    ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-  }
+function draw(e) {
+  if (!drawing) return;
 
-  /* ----------- SAVE DOODLE ----------- */
-  document.getElementById("save-btn").addEventListener("click", async () => {
-    const dataUrl = canvas.toDataURL("image/png");
-    const blob = await (await fetch(dataUrl)).blob();
-    const filename = `doodle-${Date.now()}.png`;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
 
-    let { error } = await supabase.storage
-      .from("doodles")
-      .upload(filename, blob, { contentType: "image/png" });
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
 
-    if (error) {
-      alert("Error saving doodle!");
-      return;
-    }
+  ctx.lineTo(x, y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+}
 
-    alert("Doodle saved! ✨");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    loadDoodles();
+// --- SAVE DOODLE ---
+function canvasToBlob() {
+  return new Promise(res => {
+    canvas.toBlob(b => res(b), "image/png");
   });
+}
 
-  /* ----------- LOAD DOODLES FROM SUPABASE ----------- */
-  async function loadDoodles() {
-    const wall = document.getElementById("doodle-wall");
-    wall.innerHTML = "";
+async function saveDoodle() {
+  const blob = await canvasToBlob();
+  const filename = `doodle-${Date.now()}.png`;
 
-    let { data } = await supabase.storage.from("doodles").list("");
+  const { error } = await supabase.storage
+    .from("doodles")
+    .upload(filename, blob);
 
-    data.forEach(file => {
-      const url =
-        `${SUPABASE_URL}/storage/v1/object/public/doodles/${file.name}`;
-      const img = document.createElement("img");
-      img.src = url;
-      img.className = "tiny-doodle";
-      wall.appendChild(img);
-    });
+  if (error) {
+    alert("Error saving doodle!");
+    return;
   }
 
-  loadDoodles();
+  await enforceLimit(); // ⭐ delete old doodles
+  await loadDoodles();  // refresh list
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  alert("Saved!");
+}
+
+// --- LIMIT STORAGE TO 20 DOODLES ---
+async function enforceLimit() {
+  const { data: files } = await supabase
+    .storage
+    .from("doodles")
+    .list("", { sortBy: { column: "created_at", order: "asc" } });
+
+  if (!files || files.length <= MAX_DOODLES) return;
+
+  const extra = files.length - MAX_DOODLES;
+
+  for (let i = 0; i < extra; i++) {
+    await supabase.storage.from("doodles").remove([files[i].name]);
+  }
+}
+
+// --- LOAD DOODLES ---
+async function loadDoodles() {
+  listArea.innerHTML = "";
+
+  const { data: files } = await supabase
+    .storage
+    .from("doodles")
+    .list("", { sortBy: { column: "created_at", order: "desc" } });
+
+  files?.forEach(f => {
+    const url = supabase.storage.from("doodles").getPublicUrl(f.name).data.publicUrl;
+    const img = document.createElement("img");
+    img.src = url;
+    img.className = "tiny-doodle";
+    listArea.appendChild(img);
+  });
+}
+
+saveBtn.onclick = saveDoodle;
+loadDoodles();
+
 </script>
-
-<!-- Doodle Wall Styles -->
-<style>
-  #drawpad {
-    background: #fff;
-    border: 2px dashed #aaa;
-    border-radius: 8px;
-    touch-action: none;
-    width: 100%;
-    max-width: 350px;
-  }
-
-  #save-btn {
-    margin-top: 10px;
-    padding: 10px 20px;
-    background: #b88fbf;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-  }
-
-  #doodle-wall {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 15px;
-  }
-
-  .tiny-doodle {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    opacity: 0.85;
-    transition: 0.3s;
-  }
-
-  .tiny-doodle:hover {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-</style>
 
 </body>
 </html>
