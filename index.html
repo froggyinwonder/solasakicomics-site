@@ -205,6 +205,15 @@
 
   setInterval(rotateComic, 8000);
 </script>
+<script>
+function toggleMode() {
+  document.body.classList.toggle("night");
+  localStorage.setItem("nightMode", document.body.classList.contains("night"));
+}
 
+if (localStorage.getItem("nightMode") === "true") {
+  document.body.classList.add("night");
+}
+</script>
 </body>
 </html>
