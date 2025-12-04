@@ -25,46 +25,52 @@
   <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
-<!-- ⭐ PAGE WRAPPER -->
-<div class="page">
+<!-- ⭐ WRAP PAGE CONTENT -->
+<div class="page slide-up">
 
-<h2>Write-ups</h2>
-<p>This lazy person hasn’t posted anything yet… probably thinking about it.</p>
+    <h2>Write-ups</h2>
+    <p>This lazy person hasn’t posted anything yet… probably thinking about it.</p>
 
-<div id="writeup-list"></div>
+    <!-- Write-up list -->
+    <div id="writeList" class="writeups-list"></div>
 
-</div> <!-- end .page -->
+</div>
 
 <footer>© 2025 Solasaki Comics</footer>
 
+
 <script>
-/* List all markdown files */
-async function loadWriteups() {
-  const files = ["wait.md"]; // ← Add more markdown names here manually
-
-  const container = document.getElementById("writeup-list");
-
-  files.forEach(name => {
-    const box = document.createElement("a");
-    box.className = "writeup-item-box";
-    box.href = "read.html?file=" + name;
-    box.textContent = name.replace(".md", "");
-    container.appendChild(box);
-  });
-}
-
-loadWriteups();
-
-/* Dark mode */
+/* ---- NIGHT MODE ---- */
 function toggleMode() {
   document.documentElement.classList.toggle("dark");
   localStorage.setItem("mode",
       document.documentElement.classList.contains("dark") ? "dark" : "light"
   );
 }
+
 if (localStorage.getItem("mode") === "dark") {
   document.documentElement.classList.add("dark");
 }
+
+
+/* ---- LOAD WRITE-UP FILES ---- */
+/* Folder: /writeups/   Files: wait.md etc */
+
+const files = ["wait.md"];   // <-- Add more markdown files here
+
+function loadList() {
+  const list = document.getElementById("writeList");
+
+  files.forEach(name => {
+    const item = document.createElement("a");
+    item.href = `read.html?file=${name}`;
+    item.textContent = name.replace(".md", "");
+    item.className = "write-item";
+    list.appendChild(item);
+  });
+}
+
+loadList();
 </script>
 
 </body>
