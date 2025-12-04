@@ -1,159 +1,123 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Write-ups — Solasaki Comics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="fade">
 
 <header>
   <div class="logoarea">
-    <img src="assets/uploads/IMG_0079.jpeg" style="width:48px;height:48px;border-radius:12px;object-fit:cover;">
+    <img src="assets/uploads/IMG_0079.jpeg" alt="logo">
     <h1>Solasaki Comics</h1>
   </div>
+
   <nav>
     <a href="index.html">Home</a>
     <a href="comics.html">Comics</a>
-    <a href="writeups.html" class="active">Write-ups</a>
+    <a class="active" href="writeups.html">Write-ups</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
-    <button class="toggle-mode" onclick="toggleMode()">🌙</button>
   </nav>
+
+  <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
-<main class="page slide-up" style="max-width:900px;margin:auto;padding:20px;">
+
+<!-- PAGE CONTENT WRAPPER -->
+<div class="page slide-up">
+
   <h2>Write-ups</h2>
-<p>This lazy person hasn’t posted anything yet… probably thinking about it.</p>
-<hr>
 
-  <div id="writeups-list" style="margin-top:30px;">Loading posts…</div>
-</main>
+  <p id="emptyMessage">This lazy person hasn’t posted anything yet… probably thinking about it.</p>
 
-<footer>© <span id="year"></span> Solasaki Comics</footer>
+  <div id="writeupsContainer"></div>
 
+</div>
+
+
+<footer>© 2025 Solasaki Comics</footer>
+
+
+<!-- ⭐ FIXED SCRIPT: Load Markdown (.md) + Text (.txt) Write-ups -->
 <script>
-document.getElementById("year").textContent = new Date().getFullYear();
+async function loadWriteups() {
+    const container = document.getElementById("writeupsContainer");
+    const emptyMessage = document.getElementById("emptyMessage");
 
-async function fetchGitHubIndex(){
-  const apiURL = "https://api.github.com/repos/froggyinwonder/solasakicomics-site/contents/writings";
-  console.log("[writeups] trying GitHub API:", apiURL);
-  const res = await fetch(apiURL);
-  if (!res.ok) {
-    const text = await res.text().catch(()=>null);
-    throw new Error(`GitHub API returned ${res.status} ${res.statusText} - ${text?text.substring(0,200):''}`);
-  }
-  return res.json();
-}
+    try {
+        // Request directory listing
+        const response = await fetch("writings/");
+        const text = await response.text();
 
-async function fetchLocalIndexJSON(){
-  const url = "writings/index.json";
-  console.log("[writeups] trying local fallback:", url);
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Local index.json fetch failed ${res.status}`);
-  return res.json();
-}
+        // Match any file ending in .md or .txt
+        const files = [
+            ...text.matchAll(/href="([^"]+\.(md|txt))"/g)
+        ].map(m => m[1]);
 
-function extractFrontmatter(mdText){
-  const front = (mdText.split("---")[1]||"");
-  const title = (front.match(/title:\s*["']?(.*?)["']?(\n|$)/) || [])[1] || null;
-  const date = (front.match(/date:\s*["']?(.*?)["']?(\n|$)/) || [])[1] || "";
-  return {title, date};
-}
+        if (!files.length) {
+            emptyMessage.style.display = "block";
+            return;
+        }
 
-async function buildListFromGitHub(){
-  const listEl = document.getElementById("writeups-list");
-  try {
-    const files = await fetchGitHubIndex();
-    // ensure array
-    if (!Array.isArray(files)) throw new Error("GitHub index response not array");
-    const mdFiles = files.filter(f=>f.name && f.name.endsWith(".md"));
+        emptyMessage.style.display = "none";
 
-    if (mdFiles.length === 0) {
-      listEl.innerHTML = "<p>No posts yet.</p>";
-      return;
+        for (const file of files.reverse()) {
+            const res = await fetch(`writings/${file}`);
+            const content = await res.text();
+
+            // Format title from filename
+            const title = file.replace(/\.(md|txt)/, "").replace(/-/g, " ");
+
+            // Create entry block
+            const entry = document.createElement("div");
+            entry.className = "entry";
+            entry.style.marginBottom = "30px";
+            entry.style.padding = "15px";
+            entry.style.border = "1px dashed var(--border)";
+            entry.style.borderRadius = "10px";
+            entry.style.background = "var(--bg2)";
+
+            entry.innerHTML = `
+                <h3 style="margin-bottom:8px">${title}</h3>
+                <p style="margin-bottom:12px">${content.substring(0, 220)}...</p>
+                <a href="writings/${file}" 
+                   class="button"
+                   style="padding:8px 16px; border-radius:8px; background:var(--accent); color:white; text-decoration:none;">
+                    Read full
+                </a>
+            `;
+
+            container.appendChild(entry);
+        }
+
+    } catch (err) {
+        emptyMessage.textContent = "Error loading write-ups.";
+        console.error(err);
     }
-
-    // sort newest -> oldest by filename (recommend yyyy-mm-dd-title.md)
-    mdFiles.sort((a,b)=> b.name.localeCompare(a.name));
-
-    let html = "";
-    for (const f of mdFiles){
-      try {
-        const mdRes = await fetch(f.download_url);
-        const mdText = await mdRes.text();
-        const fm = extractFrontmatter(mdText);
-        const slug = f.name.replace(/\.md$/,"");
-        const title = fm.title || slug;
-        const date = fm.date || "";
-        html += `<a class="entry" href="writeup-viewer.html?post=${encodeURIComponent(slug)}" style="display:block;margin-bottom:18px;padding:14px;border-radius:10px;border:1px dashed var(--border);text-decoration:none;color:inherit;">
-          <h3 style="margin:0 0 6px 0;">${title}</h3>
-          <p style="margin:0;color:var(--muted);font-size:13px;">${date}</p>
-        </a>`;
-      } catch(e){
-        console.warn("[writeups] could not fetch md", f.name, e);
-      }
-    }
-    listEl.innerHTML = html;
-  } catch(err) {
-    console.error("[writeups] GitHub API failed:", err);
-    throw err;
-  }
 }
 
-async function buildListFromIndexJSON(){
-  const listEl = document.getElementById("writeups-list");
-  try {
-    const idx = await fetchLocalIndexJSON();
-    if (!Array.isArray(idx) || idx.length === 0) {
-      listEl.innerHTML = "<p>No posts found in index.json</p>";
-      return;
-    }
-    // index.json expects array of { "slug":"welcome-to-solasaki", "title":"...", "date":"..." }
-    idx.sort((a,b) => (b.slug || "").localeCompare(a.slug || ""));
-    let html="";
-    for (const p of idx){
-      const slug = p.slug;
-      const title = p.title || slug;
-      const date = p.date || "";
-      html += `<a class="entry" href="writeup-viewer.html?post=${encodeURIComponent(slug)}" style="display:block;margin-bottom:18px;padding:14px;border-radius:10px;border:1px dashed var(--border);text-decoration:none;color:inherit;">
-          <h3 style="margin:0 0 6px 0;">${title}</h3>
-          <p style="margin:0;color:var(--muted);font-size:13px;">${date}</p>
-        </a>`;
-    }
-    listEl.innerHTML = html;
-  } catch(err){
-    console.error("[writeups] local index.json failed:", err);
-    document.getElementById("writeups-list").innerHTML = "<p>Could not load writeups (check console)</p>";
-  }
-}
-
-(async function init(){
-  const listEl = document.getElementById("writeups-list");
-  try {
-    await buildListFromGitHub();
-    console.log("[writeups] loaded via GitHub API");
-  } catch(e) {
-    // fallback to local index.json
-    console.warn("[writeups] falling back to local index.json");
-    await buildListFromIndexJSON();
-  }
-})();
+loadWriteups();
 </script>
 
+
+<!-- ⭐ Dark Mode -->
 <script>
 function toggleMode() {
-  document.documentElement.classList.toggle("dark");
-  localStorage.setItem("mode",
-      document.documentElement.classList.contains("dark") ? "dark" : "light"
-  );
+    document.documentElement.classList.toggle("dark");
+    localStorage.setItem(
+        "mode",
+        document.documentElement.classList.contains("dark") ? "dark" : "light"
+    );
 }
 
 if (localStorage.getItem("mode") === "dark") {
-  document.documentElement.classList.add("dark");
+    document.documentElement.classList.add("dark");
 }
 </script>
-  
+
 </body>
 </html>
