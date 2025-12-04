@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Contact — Solasaki</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -21,28 +22,30 @@
     <a class="active" href="contact.html">Contact</a>
   </nav>
 
-  <!-- dark mode button OUTSIDE nav (same as index) -->
   <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
-<div class="page slide-up">
-  <h2 class="contact-page-title">Contact</h2>
 
-  <div class="contact-page">
-    <div class="contact-wrapper">
-        <form>
-            <input type="text" placeholder="Your name">
-            <input type="email" placeholder="Email address">
-            <textarea placeholder="Your message" rows="4"></textarea>
-            <button type="submit">Send</button>
-        </form>
-    </div>
+<div class="page slide-up">
+
+<h2 class="contact-page-title">Contact</h2>
+
+<div class="contact-page">
+  <div class="contact-wrapper">
+      <form>
+          <input type="text" placeholder="Your name">
+          <input type="email" placeholder="Email address">
+          <textarea placeholder="Your message" rows="4"></textarea>
+          <button type="submit">Send</button>
+      </form>
   </div>
 </div>
 
+</div> <!-- END PAGE -->
+
+
 <footer>© 2025 Solasaki Comics</footer>
 
-<!-- correct dark mode script -->
 <script>
 function toggleMode() {
   document.documentElement.classList.toggle("dark");
@@ -51,9 +54,8 @@ function toggleMode() {
   );
 }
 
-// Load saved mode
 if (localStorage.getItem("mode") === "dark") {
-  document.documentElement.classList.add("dark");
+   document.documentElement.classList.add("dark");
 }
 </script>
 
