@@ -1,23 +1,23 @@
 <!doctype html>
 <html>
 <head>
-  <title>Read | Solasaki Comics</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>Read — Solasaki Comics</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body class="fade">
 
 <header>
   <div class="logoarea">
-    <img src="assets/uploads/IMG_0079.jpeg">
+    <img src="assets/uploads/IMG_0079.jpeg" alt="logo">
     <h1>Solasaki Comics</h1>
   </div>
 
   <nav>
     <a href="index.html">Home</a>
     <a href="comics.html">Comics</a>
-    <a class="active" href="writeups.html">Write-ups</a>
+    <a href="writeups.html">Write-ups</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
@@ -25,65 +25,63 @@
   <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
-
 <div class="page slide-up">
+  <a class="back-btn" href="writeups.html">← Back to Write-ups</a>
 
-  <a href="writeups.html" class="back-btn">← Back to Write-ups</a>
-
-  <h2 id="title"></h2>
-
-  <article id="content" class="writeup-content"></article>
-
+  <h2 id="writeup-title"></h2>
+  <article id="writeup-content" class="writeup-content"></article>
 </div>
-
 
 <footer>© 2025 Solasaki Comics</footer>
 
-
-<!-- Markdown + Supabase -->
 <script type="module">
-import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+  import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const supabase = createClient(
-  "https://rgxtvwnfqglsxnmvkkus.supabase.co",
-  "public-anon-key"
-);
+  const supabase = createClient(
+    "https://rgxtvwnfqglsxnmvkkus.supabase.co",
+    "public-anon-key" // replace with your real anon key
+  );
 
-const params = new URLSearchParams(window.location.search);
-const file = params.get("file");
+  const params = new URLSearchParams(location.search);
+  const file = params.get("file");
+  document.getElementById("writeup-title").textContent = file ? file.replace(".md","") : "";
 
-document.getElementById("title").textContent = file?.replace(".md", "") || "";
+  async function load() {
+    const contentEl = document.getElementById("writeup-content");
+    if (!file) {
+      contentEl.innerHTML = "<p>Missing file parameter.</p>";
+      return;
+    }
 
-async function loadWriteup() {
-  const { data } = await supabase.storage
-    .from("writeups")
-    .download(file);
+    try {
+      const { data, error } = await supabase.storage.from("writeups").download(file);
+      if (error) {
+        console.error("download error", error);
+        contentEl.innerHTML = `<p>Could not load write-up.</p>`;
+        return;
+      }
 
-  if (!data) {
-    document.getElementById("content").innerHTML =
-      "<p>Could not load write-up.</p>";
-    return;
+      const text = await data.text();
+      contentEl.innerHTML = marked.parse(text || "");
+    } catch (e) {
+      console.error(e);
+      contentEl.innerHTML = `<p>Unexpected error.</p>`;
+    }
   }
 
-  const text = await data.text();
-  document.getElementById("content").innerHTML = marked.parse(text);
-}
-
-loadWriteup();
+  load();
 </script>
 
 <script>
-function toggleMode() {
-  document.documentElement.classList.toggle("dark");
-  localStorage.setItem("mode",
-      document.documentElement.classList.contains("dark") ? "dark" : "light"
-  );
-}
-
-if (localStorage.getItem("mode") === "dark") {
-  document.documentElement.classList.add("dark");
-}
+  function toggleMode(){
+    document.documentElement.classList.toggle("dark");
+    localStorage.setItem("mode",
+      document.documentElement.classList.contains("dark") ? "dark":"light");
+  }
+  if (localStorage.getItem("mode")==="dark"){
+    document.documentElement.classList.add("dark");
+  }
 </script>
 
 </body>
