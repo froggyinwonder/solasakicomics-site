@@ -472,3 +472,17 @@ header {
     margin-left: 0;
   }
 }
+.delete-btn {
+    margin-top: 6px;
+    padding: 4px 8px;
+    font-size: 13px;
+    border: 1px dashed #c33;
+    background: #fff0f0;
+    color: #a00;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background: #ffd6d6;
+}
