@@ -649,3 +649,19 @@ nav a {
     height: 60px;
   }
 }
+.writeup-item {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  margin: 10px 0;
+  font-family: "Patrick Hand";
+  font-size: 20px;
+}
+
+.writeup-content {
+  max-width: 750px;
+  margin: auto;
+  line-height: 1.7;
+  padding: 10px;
+}
