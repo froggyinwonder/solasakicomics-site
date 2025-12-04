@@ -1,9 +1,8 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <title>Write-ups — Solasaki Comics</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -11,30 +10,30 @@
 
 <header>
   <div class="logoarea">
-    <img src="assets/uploads/IMG_0079.jpeg" alt="logo">
-    <h1>Solasaki Comics</h1>
+      <img src="assets/uploads/IMG_0079.jpeg" alt="logo">
+      <h1>Solasaki Comics</h1>
   </div>
 
   <nav>
-    <a href="index.html">Home</a>
-    <a href="comics.html">Comics</a>
-    <a class="active" href="writeups.html">Write-ups</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
+      <a href="index.html">Home</a>
+      <a href="comics.html">Comics</a>
+      <a class="active" href="writeups.html">Write-ups</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
   </nav>
 
   <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
 
-<!-- PAGE CONTENT WRAPPER -->
+<!-- PAGE BODY -->
 <div class="page slide-up">
 
-  <h2>Write-ups</h2>
+  <h2 class="write-title">Write-ups</h2>
 
-  <p id="emptyMessage">This lazy person hasn’t posted anything yet… probably thinking about it.</p>
+  <p>This lazy person hasn’t posted anything yet… probably thinking about it.</p>
 
-  <div id="writeupsContainer"></div>
+  <div id="writeup-list" style="margin-top: 20px;"></div>
 
 </div>
 
@@ -42,82 +41,51 @@
 <footer>© 2025 Solasaki Comics</footer>
 
 
-<!-- ⭐ FIXED SCRIPT: Load Markdown (.md) + Text (.txt) Write-ups -->
-<script>
-async function loadWriteups() {
-    const container = document.getElementById("writeupsContainer");
-    const emptyMessage = document.getElementById("emptyMessage");
-
-    try {
-        // Request directory listing
-        const response = await fetch("writings/");
-        const text = await response.text();
-
-        // Match any file ending in .md or .txt
-        const files = [
-            ...text.matchAll(/href="([^"]+\.(md|txt))"/g)
-        ].map(m => m[1]);
-
-        if (!files.length) {
-            emptyMessage.style.display = "block";
-            return;
-        }
-
-        emptyMessage.style.display = "none";
-
-        for (const file of files.reverse()) {
-            const res = await fetch(`writings/${file}`);
-            const content = await res.text();
-
-            // Format title from filename
-            const title = file.replace(/\.(md|txt)/, "").replace(/-/g, " ");
-
-            // Create entry block
-            const entry = document.createElement("div");
-            entry.className = "entry";
-            entry.style.marginBottom = "30px";
-            entry.style.padding = "15px";
-            entry.style.border = "1px dashed var(--border)";
-            entry.style.borderRadius = "10px";
-            entry.style.background = "var(--bg2)";
-
-            entry.innerHTML = `
-                <h3 style="margin-bottom:8px">${title}</h3>
-                <p style="margin-bottom:12px">${content.substring(0, 220)}...</p>
-                <a href="writings/${file}" 
-                   class="button"
-                   style="padding:8px 16px; border-radius:8px; background:var(--accent); color:white; text-decoration:none;">
-                    Read full
-                </a>
-            `;
-
-            container.appendChild(entry);
-        }
-
-    } catch (err) {
-        emptyMessage.textContent = "Error loading write-ups.";
-        console.error(err);
-    }
-}
-
-loadWriteups();
-</script>
-
-
-<!-- ⭐ Dark Mode -->
+<!-- DARK MODE -->
 <script>
 function toggleMode() {
-    document.documentElement.classList.toggle("dark");
-    localStorage.setItem(
-        "mode",
-        document.documentElement.classList.contains("dark") ? "dark" : "light"
-    );
+  document.documentElement.classList.toggle("dark");
+  localStorage.setItem("mode",
+      document.documentElement.classList.contains("dark") ? "dark" : "light"
+  );
 }
-
 if (localStorage.getItem("mode") === "dark") {
-    document.documentElement.classList.add("dark");
+  document.documentElement.classList.add("dark");
 }
 </script>
+
+<!-- LOAD WRITE-UP LIST -->
+<script>
+const posts = [
+  { file: "wait", title: "Wait" }
+];
+
+// render list
+const list = document.getElementById("writeup-list");
+list.innerHTML = posts.map(p => `
+  <div class="writeup-card">
+      <a href="read.html?post=${p.file}" class="writeup-link">${p.title}</a>
+  </div>
+`).join("");
+</script>
+
+<style>
+.writeup-card {
+  margin: 10px 0;
+  padding: 12px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  background: #fff;
+  width: fit-content;
+}
+
+.writeup-link {
+  font-family: "Patrick Hand";
+  font-size: 20px;
+  color: black;
+  text-decoration: none;
+}
+</style>
 
 </body>
 </html>
