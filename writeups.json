@@ -1,0 +1,23 @@
+[
+  {
+    "id": "weird",
+    "title": "Weird",
+    "summary": "A short reflection on things that feel weird but meaningful.",
+    "content": "Write your full blog here…",
+    "date": "2025-01-01"
+  },
+  {
+    "id": "stay",
+    "title": "Stay",
+    "summary": "A soft reminder about staying when everything feels heavy.",
+    "content": "Your full writing here…",
+    "date": "2025-01-02"
+  },
+  {
+    "id": "everything",
+    "title": "Everything",
+    "summary": "Thoughts about everything happening all at once.",
+    "content": "Your full writing here…",
+    "date": "2025-01-03"
+  }
+]
