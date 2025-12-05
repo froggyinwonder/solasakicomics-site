@@ -1,78 +1,66 @@
 <!doctype html>
 <html>
 <head>
-  <title>Read — Solasaki Comics</title>
+  <title>Write-up — Solasaki Comics</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
+
+  <!-- markdown converter -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
 <body class="fade">
 
 <header>
   <div class="logoarea">
-    <img src="assets/uploads/IMG_0079.jpeg">
-    <h1>Solasaki Comics</h1>
+      <img src="assets/uploads/IMG_0079.jpeg">
+      <h1>Solasaki Comics</h1>
   </div>
 
   <nav>
-    <a href="index.html">Home</a>
-    <a href="comics.html">Comics</a>
-    <a class="active" href="writeups.html">Write-ups</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
+      <a href="index.html">Home</a>
+      <a href="comics.html">Comics</a>
+      <a class="active" href="writeups.html">Write-ups</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
   </nav>
 
   <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
+
 <div class="page slide-up">
-
-  <article id="articleBox" class="writeup-article">
-    <h2 id="postTitle"></h2>
-    <div id="postContent" class="markdown-body"></div>
-  </article>
-
+  <div id="content" class="entry"></div>
 </div>
 
 <footer>© 2025 Solasaki Comics</footer>
 
+
 <script>
-async function loadPost() {
-  const params = new URLSearchParams(window.location.search);
-  const file = params.get("post");
+// Read markdown file from URL parameter
+const file = new URLSearchParams(location.search).get("id");
 
-  if (!file) {
-    document.getElementById("postTitle").textContent = "Post not found";
-    return;
-  }
-
-  const res = await fetch("writeups/" + file);
-  let text = await res.text();
-
-  // Markdown → HTML (simple converter)
-  text = text
-    .replace(/^# (.*$)/gim, "<h2>$1</h2>")
-    .replace(/^## (.*$)/gim, "<h3>$1</h3>")
-    .replace(/\*\*(.*?)\*\*/gim, "<b>$1</b>")
-    .replace(/\*(.*?)\*/gim, "<i>$1</i>")
-    .replace(/\n$/gim, "<br>");
-
-  // First line is title
-  const firstLine = text.split("<br>")[0].replace(/<[^>]+>/g, "");
-  document.getElementById("postTitle").textContent = firstLine;
-  document.getElementById("postContent").innerHTML = text;
+if(!file){
+  document.getElementById("content").innerHTML = "<h3>Write-up not found.</h3>";
+} else {
+  fetch("writeups/" + file)
+    .then(res => res.text())
+    .then(md => {
+      document.getElementById("content").innerHTML = marked.parse(md);
+    })
+    .catch(()=>{
+      document.getElementById("content").innerHTML = "<h3>Could not load write-up.</h3>";
+    });
 }
 
-loadPost();
-
+// DARK MODE
 function toggleMode() {
   document.documentElement.classList.toggle("dark");
   localStorage.setItem("mode",
-      document.documentElement.classList.contains("dark") ? "dark" : "light"
+     document.documentElement.classList.contains("dark") ? "dark" : "light"
   );
 }
-
-if (localStorage.getItem("mode") === "dark") {
+if(localStorage.getItem("mode")==="dark") {
   document.documentElement.classList.add("dark");
 }
 </script>
