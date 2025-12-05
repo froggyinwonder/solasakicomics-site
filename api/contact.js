@@ -1,11 +1,4 @@
-// api/contact.js
 import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-function sanitize(s = "") {
-  return String(s).replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -13,40 +6,35 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, email, message } = req.body || {};
+    const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
-      return res.status(400).json({ error: "Missing fields" });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // basic length & email sanity checks
-    if (String(message).length > 5000) {
-      return res.status(400).json({ error: "Message too long" });
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: "Invalid email" });
-    }
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const html = `
-      <div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">
-        <h2>New contact form message</h2>
-        <p><strong>Name:</strong> ${sanitize(name)}</p>
-        <p><strong>Email:</strong> ${sanitize(email)}</p>
-        <hr />
-        <div style="white-space:pre-wrap">${sanitize(message)}</div>
-      </div>
-    `;
-
-    await resend.emails.send({
-      from: process.env.FROM_EMAIL || "Solasaki Comics <no-reply@solasaki.com>",
-      to: process.env.TO_EMAIL || "solasakicomics@gmail.com",
-      subject: `Website contact from ${name}`,
-      html,
+    const { data, error } = await resend.emails.send({
+      from: process.env.FROM_EMAIL,
+      to: process.env.TO_EMAIL,
+      subject: `New message from ${name}`,
+      html: `
+        <h2>You've received a new message!</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong><br>${message.replace(/\n/g, "<br>")}</p>
+      `
     });
 
-    return res.status(200).json({ ok: true });
+    if (error) {
+      console.error("Resend error:", error);
+      return res.status(500).json({ error: "Email sending failed" });
+    }
+
+    return res.status(200).json({ success: true, id: data.id });
+
   } catch (err) {
-    console.error("contact send error:", err);
-    return res.status(500).json({ error: "Could not send message" });
+    console.error("Server error:", err);
+    return res.status(500).json({ error: "Server error" });
   }
 }
