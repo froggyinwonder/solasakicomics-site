@@ -46,9 +46,8 @@
 <script>
 document.getElementById("contactForm").addEventListener("submit", async function (e) {
   e.preventDefault();
+  
   const status = document.getElementById("contactStatus");
-  const btn = document.getElementById("sendBtn");
-  btn.disabled = true;
   status.textContent = "Sending…";
 
   const payload = {
@@ -65,17 +64,17 @@ document.getElementById("contactForm").addEventListener("submit", async function
     });
 
     const data = await res.json();
+
     if (res.ok) {
-      status.textContent = "Message sent — thanks!";
+      status.textContent = "Message sent!";
       document.getElementById("contactForm").reset();
     } else {
-      status.textContent = data?.error || "Could not send message.";
+      status.textContent = data.error || "Error sending message.";
     }
+
   } catch (err) {
-    status.textContent = "Network error. Try again later.";
+    status.textContent = "Network error.";
     console.error(err);
-  } finally {
-    btn.disabled = false;
   }
 });
 </script>
