@@ -32,12 +32,18 @@
 
 <div class="contact-page">
   <div class="contact-wrapper">
-      <form>
-          <input type="text" placeholder="Your name">
-          <input type="email" placeholder="Email address">
-          <textarea placeholder="Your message" rows="4"></textarea>
-          <button type="submit">Send</button>
-      </form>
+      <form action="https://formsubmit.co/solasakicomics@gmail.com" method="POST">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_subject" value="New message from Solasaki Comics website!">
+    <input type="hidden" name="_template" value="box">
+    <input type="hidden" name="_next" value="https://solasakicomics-site.vercel.app/contact.html">
+
+    <input type="text" name="name" placeholder="Your name" required>
+    <input type="email" name="email" placeholder="Email address" required>
+    <textarea name="message" placeholder="Your message" rows="4" required></textarea>
+
+    <button type="submit">Send</button>
+</form>
   </div>
 </div>
 
