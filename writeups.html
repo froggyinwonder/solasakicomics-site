@@ -1,118 +1,132 @@
-<div class="page slide-up">
-  <h2 class="writeups-title">Write-ups</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write-ups • Solasaki Comics</title>
+  <link rel="stylesheet" href="/style.css" />
 
-  <!-- Search Bar -->
-  <input id="searchBar" type="text" placeholder="Search write-ups…" class="search-input"/>
+  <style>
+    .writeup-container {
+      max-width: 750px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .search-box {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      font-size: 16px;
+    }
+    .card {
+      padding: 20px;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      border: 1px dashed #aaa;
+      background: #fffefc;
+      transition: 0.2s;
+    }
+    .card:hover {
+      background: #fff;
+    }
+    .card-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .card-meta {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
 
-  <div id="writeupsList" class="writeups-container"></div>
+<body>
 
-  <p id="emptyMessage" class="empty-message" style="display:none;">No write-ups found.</p>
+<!-- 🔹 HEADER (same as all other pages) -->
+<header>
+  <div class="header-wrapper">
+    <a href="/" class="logo-link"><img src="/logo.png" class="logo"></a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/comics.html">Comics</a>
+      <a class="active" href="/writeups.html">Write-ups</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="writeup-container">
+  <h1>Write-ups</h1>
+  <input class="search-box" id="search" placeholder="Search write-ups…">
+  <div id="list"></div>
 </div>
+
+<footer>
+  <p>© 2025 Solasaki Comics</p>
+</footer>
 
 <script>
 async function loadWriteups() {
-  const listEl = document.getElementById("writeupsList");
-  const searchEl = document.getElementById("searchBar");
-  const emptyEl = document.getElementById("emptyMessage");
+  const folder = "/writeups/";
 
-  const res = await fetch("/writeups/list.json");
-  const posts = await res.json();
+  // fetch directory files (Vercel allows static directory listing)
+  const res = await fetch(folder);
+  const html = await res.text();
 
-  function render(filter = "") {
-    listEl.innerHTML = "";
+  let files = [...html.matchAll(/href="([^"]+\.txt)"/g)].map(m => m[1]);
 
-    const filtered = posts.filter(p =>
-      p.title.toLowerCase().includes(filter.toLowerCase())
-    );
+  const list = document.getElementById("list");
+  if (!files.length) {
+    list.innerHTML = "<p>No write-ups yet…</p>";
+    return;
+  }
 
-    emptyEl.style.display = filtered.length ? "none" : "block";
+  let posts = [];
 
-    filtered.forEach(p => {
-      const card = document.createElement("a");
-      card.href = `/read.html?file=${p.file}`;
-      card.className = "writeup-card";
+  for (const file of files) {
+    const txt = await fetch(folder + file).then(r => r.text());
+    const lines = txt.split("\n");
 
-      card.innerHTML = `
-        <h3>${p.title}</h3>
-        <p class="preview">${p.preview}</p>
-        <div class="meta">${p.date} • ${p.readTime} min read</div>
-      `;
+    const title = lines[0].trim();
+    const preview = lines.slice(1, 5).join(" ").slice(0, 180) + "...";
+    const readingTime = Math.ceil(txt.split(" ").length / 180);
 
-      listEl.appendChild(card);
+    posts.push({
+      file,
+      title,
+      preview,
+      readingTime,
     });
   }
 
-  searchEl.addEventListener("input", e => render(e.target.value));
-  render();
+  function render(items) {
+    list.innerHTML = items.map(p => `
+      <a href="/read.html?post=${p.file}">
+        <div class="card">
+          <div class="card-title">${p.title}</div>
+          <div class="card-meta">${p.readingTime} min read</div>
+          <div>${p.preview}</div>
+        </div>
+      </a>
+    `).join("");
+  }
+
+  render(posts);
+
+  // 🔍 search function
+  document.getElementById("search").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    render(posts.filter(p => p.title.toLowerCase().includes(q) || p.preview.toLowerCase().includes(q)));
+  });
 }
 
 loadWriteups();
 </script>
 
-<style>
-/* Title */
-.writeups-title {
-  margin-bottom: 20px;
-  font-size: 28px;
-}
-
-/* Search bar */
-.search-input {
-  width: 100%;
-  padding: 12px 14px;
-  margin-bottom: 26px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-/* Medium-style container */
-.writeups-container {
-  display: flex;
-  flex-direction: column;
-  gap: 26px;
-}
-
-/* Medium-style card */
-.writeup-card {
-  display: block;
-  padding: 22px 26px;
-  border-radius: 10px;
-  text-decoration: none;
-  background: var(--bg2);
-  border: 1px solid #ddd;
-  transition: 0.2s;
-}
-
-.writeup-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-}
-
-.writeup-card h3 {
-  margin: 0;
-  margin-bottom: 10px;
-  font-size: 22px;
-  color: var(--text);
-}
-
-.writeup-card .preview {
-  margin: 0;
-  color: #555;
-  line-height: 1.5;
-}
-
-.writeup-card .meta {
-  margin-top: 12px;
-  font-size: 14px;
-  color: #777;
-}
-
-/* Empty message */
-.empty-message {
-  text-align: center;
-  margin-top: 40px;
-  font-size: 16px;
-  opacity: 0.7;
-}
-</style>
+</body>
+</html>
