@@ -1,0 +1,11 @@
+{
+  "name": "solasakicomics-site",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "resend": "^1.0.0"
+  }
+}
