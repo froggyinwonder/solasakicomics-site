@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Write-ups • Solasaki Comics</title>
+  <title>Write-ups — Solasaki Comics</title>
 
-  <link rel="stylesheet" href="/style.css" />
-  <link rel="icon" type="image/png" href="/logo.png">
+  <meta name="description" content="Write-ups and short thoughts by Solasaki Comics.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="assets/uploads/IMG_0079.jpeg">
 
-  <!-- LOCAL STYLES (ONLY FOR WRITE-UPS PAGE) -->
+  <!-- LOCAL WRITEUPS PAGE STYLE (DO NOT TOUCH GLOBAL CSS) -->
   <style>
     .writeups-grid {
       max-width: 750px;
@@ -75,26 +76,30 @@
   </style>
 </head>
 
-<body>
+<body class="fade">
 
+<!-- 🔥 HEADER (EXACT COPY FROM COMICS PAGE) -->
 <header>
   <div class="logoarea">
-    <img src="/logo.png" class="logo">
+    <img src="assets/uploads/IMG_0079.jpeg">
     <h1>Solasaki Comics</h1>
   </div>
 
   <nav>
-    <a href="/">Home</a>
-    <a href="/comics.html">Comics</a>
-    <a class="active" href="/writeups.html">Write-ups</a>
-    <a href="/about.html">About</a>
-    <a href="/contact.html">Contact</a>
-    <button class="toggle-mode" id="themeToggle">🌙</button>
+    <a href="index.html">Home</a>
+    <a href="comics.html">Comics</a>
+    <a class="active" href="writeups.html">Write-ups</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
   </nav>
+
+  <button class="toggle-mode" onclick="toggleMode()">🌙</button>
 </header>
 
-<!-- PAGE TITLE -->
-<h1 style="text-align:center; font-family:'Patrick Hand'; margin-top:25px;">Write-ups</h1>
+<!-- TITLE -->
+<h2 style="text-align:center; font-family:'Patrick Hand'; margin-top:25px;">
+  Write-ups
+</h2>
 
 <!-- SEARCH -->
 <input id="search" class="search-box" placeholder="Search write-ups…">
@@ -102,36 +107,30 @@
 <!-- LIST -->
 <div id="list" class="writeups-grid"></div>
 
-<footer>
-  <p>© 2025 Solasaki Comics</p>
-</footer>
+<!-- FOOTER -->
+<footer>© 2025 Solasaki Comics</footer>
 
+<!-- JS -->
 <script>
-/* ===========================
-   DARK MODE
-=========================== */
-document.getElementById("themeToggle").onclick = () => {
+/* DARK MODE (same as Comics page) */
+function toggleMode() {
   document.documentElement.classList.toggle("dark");
-  localStorage.setItem("theme", 
+  localStorage.setItem("mode",
     document.documentElement.classList.contains("dark") ? "dark" : "light"
   );
-};
-
-if (localStorage.getItem("theme") === "dark") {
+}
+if (localStorage.getItem("mode") === "dark") {
   document.documentElement.classList.add("dark");
 }
 
-/* ===========================
-   LOAD WRITEUPS FROM list.json
-=========================== */
+/* LOAD WRITE-UPS */
 async function loadWriteups() {
-  const posts = await fetch("/writeups/list.json").then(r => r.json());
+  const posts = await fetch("writeups/list.json").then(r => r.json());
   const list = document.getElementById("list");
 
-  // RENDER FUNCTION (UPDATED WITH TRIM + READ MORE)
   function render(items) {
     list.innerHTML = items.map(p => `
-      <a class="writeup-card" href="/read.html?post=${p.file}">
+      <a class="writeup-card" href="read.html?post=${p.file}">
         <h3>${p.title}</h3>
         <div class="meta">${p.readingTime} min read</div>
 
