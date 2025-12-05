@@ -1,11 +1,12 @@
 {
   "name": "solasakicomics",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "resend": "latest"
+  },
+  "scripts": {
+    "generate": "node scripts/generate-list.js",
+    "build": "npm run generate"
   }
-}
-"scripts": {
-  "generate": "node scripts/generate-list.js",
-  "build": "npm run generate"
 }
