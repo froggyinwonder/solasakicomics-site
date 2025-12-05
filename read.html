@@ -14,50 +14,71 @@
       line-height: 1.7;
       font-size: 18px;
     }
-    h1 { font-size: 32px; margin-bottom: 8px; }
-    .meta { opacity: 0.6; margin-bottom: 20px; }
+
+    h1 {
+      font-family: "Patrick Hand";
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      margin-bottom: 20px;
+      color: inherit;
+    }
   </style>
 </head>
 
 <body>
 
 <header>
-  <div class="header-wrapper">
-    <a href="/" class="logo-link"><img src="/logo.png" class="logo"></a>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/comics.html">Comics</a>
-      <a class="active" href="/writeups.html">Write-ups</a>
-      <a href="/about.html">About</a>
-      <a href="/contact.html">Contact</a>
-    </nav>
+  <div class="logoarea">
+    <img src="/logo.png">
+    <h1>Solasaki Comics</h1>
   </div>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/comics.html">Comics</a>
+    <a class="active" href="/writeups.html">Write-ups</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <button class="toggle-mode" id="themeToggle">🌙</button>
+  </nav>
 </header>
 
-<div class="reader" id="reader">Loading…</div>
+<div id="reader" class="reader">Loading…</div>
 
 <footer>
   <p>© 2025 Solasaki Comics</p>
 </footer>
 
 <script>
+// Dark mode
+document.getElementById("themeToggle").onclick = () => {
+  document.documentElement.classList.toggle("dark");
+  localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+};
+if (localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark");
+
+// Read post
 async function loadPost() {
-  const params = new URLSearchParams(location.search);
-  const file = params.get("post");
+  const file = new URLSearchParams(location.search).get("post");
   if (!file) return;
 
-  const txt = await fetch("/writeups/" + file).then(r => r.text());
+  const raw = await fetch("/writeups/" + file).then(r => r.text());
+  const lines = raw.split("\n");
 
-  const lines = txt.split("\n");
-  const title = lines[0];
-  const body = lines.slice(1).join("\n").replace(/\n/g, "<br>");
-
-  const readingTime = Math.ceil(txt.split(" ").length / 180);
+  const title = lines[0].trim();
+  const body = lines.slice(1).join("<br>");
 
   document.getElementById("reader").innerHTML = `
-    <a href="/writeups.html">← Back</a>
+    <a class="back-btn" href="/writeups.html">← Back</a>
     <h1>${title}</h1>
-    <div class="meta">${readingTime} min read</div>
     <div>${body}</div>
   `;
 }
