@@ -794,3 +794,91 @@ nav a {
     font-size: 20px;
   }
 }
+/* ---------------------------------------------------
+   UNIVERSAL RESPONSIVE FIX FOR ALL PAGES
+--------------------------------------------------- */
+
+/* Ensure every page container scales properly */
+.page,
+.writeup-container,
+.contact-page,
+.sketch-wrapper,
+.comic-rotator-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
+/* HEADER FIX — prevent wrapping + overlapping */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+nav a {
+  font-size: 16px;
+  white-space: nowrap;
+  font-weight: 600; /* looks clean like your older style */
+}
+
+/* Prevent sideways scrolling on ANY phone */
+body, html {
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+
+/* ---------- SMALL PHONES (<480px) ---------- */
+@media (max-width: 480px) {
+
+  .logoarea img {
+    width: 38px;
+    height: 38px;
+  }
+
+  header {
+    padding: 10px 12px;
+    justify-content: center;
+  }
+
+  nav a {
+    font-size: 14px;
+    margin: 0 3px;
+  }
+
+  /* HERO TEXT scale */
+  .hero-text-block h2 {
+    font-size: 22px !important;
+    text-align: left;
+  }
+
+  .hero-wall {
+    padding: 10px 0;
+    height: auto;
+  }
+
+  /* Make canvas always visible */
+  #drawCanvas {
+    height: 260px !important;
+  }
+
+  /* Fix Instagram embed width */
+  .comic-rotator iframe,
+  .comic-frame blockquote {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
