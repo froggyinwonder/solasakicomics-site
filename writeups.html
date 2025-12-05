@@ -8,122 +8,124 @@
   <link rel="stylesheet" href="/style.css" />
   <link rel="icon" type="image/png" href="/logo.png">
 
-  <meta name="description" content="Read personal write-ups, stories, and thoughts from Solasakicomics.">
-
   <style>
-    .writeup-container { max-width: 750px; margin: 40px auto; padding: 0 20px; }
+    .writeups-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      max-width: 750px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .writeup-card {
+      display: block;
+      padding: 18px;
+      background: var(--paper);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--ink);
+      transition: 0.2s ease;
+    }
+
+    .writeup-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 14px var(--shadow);
+    }
+
+    .writeup-card h3 {
+      margin: 0 0 6px 0;
+      font-family: "Patrick Hand";
+      font-size: 24px;
+    }
+
+    .excerpt {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .meta {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
     .search-box {
-      width: 100%; padding: 12px; border: 1px solid #ccc;
-      border-radius: 8px; margin-bottom: 25px; font-size: 16px;
-      background: var(--bg); color: var(--text);
+      width: 100%;
+      max-width: 750px;
+      margin: 20px auto;
+      display: block;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px dashed var(--border);
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 16px;
     }
-    .card {
-      padding: 20px; margin-bottom: 18px; border-radius: 12px;
-      border: 1px dashed var(--border); background: var(--card);
-      transition: 0.2s;
-    }
-    .card:hover { background: var(--card-hover); }
-    .card-title { font-size: 22px; font-weight: bold; margin-bottom: 6px; }
-    .card-meta { font-size: 14px; opacity: 0.7; margin-bottom: 10px; }
   </style>
 </head>
 
 <body>
 
-<!-- HEADER (same as all other pages ) -->
 <header>
-  <div class="logo-row">
+  <div class="logoarea">
     <img src="/logo.png" class="logo">
-    <h1 class="brand">Solasaki Comics</h1>
+    <h1>Solasaki Comics</h1>
   </div>
 
-  <nav class="navbar">
-    <a href="/index.html">Home</a>
+  <nav>
+    <a href="/">Home</a>
     <a href="/comics.html">Comics</a>
     <a class="active" href="/writeups.html">Write-ups</a>
     <a href="/about.html">About</a>
     <a href="/contact.html">Contact</a>
-    <button id="themeToggle" class="theme-btn">🌙</button>
+    <button class="toggle-mode" id="themeToggle">🌙</button>
   </nav>
-
-  <hr class="divider">
 </header>
 
-<div class="writeup-container">
-  <h1>Write-ups</h1>
+<h1 style="text-align:center; font-family:'Patrick Hand'; margin-top:25px;">Write-ups</h1>
 
-  <input class="search-box" id="search" placeholder="Search write-ups…">
+<input id="search" class="search-box" placeholder="Search write-ups…">
 
-  <div id="list"></div>
-</div>
+<div id="list" class="writeups-grid"></div>
 
 <footer>
   <p>© 2025 Solasaki Comics</p>
 </footer>
 
-<!-- NIGHT MODE JS (must be included on this  page!) -->
 <script>
-document.getElementById("themeToggle").addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-  localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
-});
+// DARK MODE
+document.getElementById("themeToggle").onclick = () => {
+  document.documentElement.classList.toggle("dark");
+  localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+};
+if (localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark");
 
-// Load saved theme
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark-mode");
-}
-</script>
-
-<!-- WRITE-UP LOADER SCRIPT -->
-<script>
+// LOAD WRITEUPS FROM list.json
 async function loadWriteups() {
-  const folder = "/writeups/";
-  const res = await fetch(folder);
-  const html = await res.text();
-
-  // detect .txt files in directory
-  let files = [...html.matchAll(/href="([^"]+\.txt)"/g)].map(m => m[1]);
-
-  const list = document.getElementById("list");
-  if (!files.length) {
-    list.innerHTML = "<p>No write-ups yet…</p>";
-    return;
-  }
-
-  let posts = [];
-
-  for (const file of files) {
-    const txt = await fetch(folder + file).then(r => r.text());
-    const lines = txt.split("\n");
-
-    const title = lines[0].trim();
-    const preview = lines.slice(1, 5).join(" ").slice(0, 180) + "...";
-    const readingTime = Math.ceil(txt.split(" ").length / 180);
-
-    posts.push({ file, title, preview, readingTime });
-  }
+  const posts = await fetch("/writeups/list.json").then(r => r.json());
 
   function render(items) {
-    list.innerHTML = items.map(p => `
-      <a href="/read.html?post=${p.file}">
-        <div class="card">
-          <div class="card-title">${p.title}</div>
-          <div class="card-meta">${p.readingTime} min read</div>
-          <div>${p.preview}</div>
-        </div>
+    document.getElementById("list").innerHTML = items.map(p => `
+      <a class="writeup-card" href="/read.html?post=${p.file}">
+        <h3>${p.title}</h3>
+        <div class="meta">${p.readingTime} min read</div>
+        <div class="excerpt">${p.preview}</div>
       </a>
     `).join("");
   }
 
   render(posts);
 
-  document.getElementById("search").addEventListener("input", e => {
+  // SEARCH
+  document.getElementById("search").oninput = e => {
     const q = e.target.value.toLowerCase();
     render(posts.filter(p =>
       p.title.toLowerCase().includes(q) ||
       p.preview.toLowerCase().includes(q)
     ));
-  });
+  };
 }
 
 loadWriteups();
