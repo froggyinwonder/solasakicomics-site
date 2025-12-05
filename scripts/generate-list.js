@@ -1,45 +1,28 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
-const folder = path.join(__dirname, "..", "writeups");
-const output = path.join(__dirname, "..", "writeups.json");
+const folder = "writeups";
+const files = fs.readdirSync(folder).filter(f => f.endsWith(".txt") || f.endsWith(".md"));
 
-function readingTime(text) {
-  const words = text.split(/\s+/).length;
-  return Math.ceil(words / 200); // ~200 WPM
-}
+let list = [];
 
-function parseMeta(content) {
-  const match = content.match(/---([\s\S]*?)---/);
-  const body = content.replace(match[0], "").trim();
+files.forEach(filename => {
+  const filePath = path.join(folder, filename);
+  const content = fs.readFileSync(filePath, "utf8").trim();
 
-  const metaLines = match[1].trim().split("\n");
-  const meta = {};
-  metaLines.forEach(line => {
-    const [key, ...rest] = line.split(":");
-    meta[key.trim()] = rest.join(":").trim();
-  });
+  const words = content.split(/\s+/).length;
+  const readingTime = Math.ceil(words / 180);
 
-  return { meta, body };
-}
+  const base = filename.replace(/\.[^.]+$/, "");
+  const title = base.charAt(0).toUpperCase() + base.slice(1);
 
-const files = fs.readdirSync(folder);
-const list = [];
+  const description = content.split(".")[0] + ".";
 
-files.forEach(file => {
-  if (!file.endsWith(".md")) return;
+  const stats = fs.statSync(filePath);
+  const date = stats.mtime.toISOString().split("T")[0];
 
-  const full = fs.readFileSync(path.join(folder, file), "utf8");
-  const { meta, body } = parseMeta(full);
-
-  list.push({
-    slug: file.replace(".md", ""),
-    title: meta.title,
-    subtitle: meta.subtitle,
-    date: meta.date,
-    readingTime: readingTime(body),
-  });
+  list.push({ title, slug: base, description, date, readingTime });
 });
 
-fs.writeFileSync(output, JSON.stringify(list, null, 2));
-console.log("✔ writeups.json updated");
+fs.writeFileSync("writeup-list.json", JSON.stringify(list, null, 2));
+console.log("✔ Generated writeup-list.json");
