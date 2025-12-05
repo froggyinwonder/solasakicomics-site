@@ -724,3 +724,73 @@ nav a {
     text-decoration: none;
     color: var(--text);
 }
+/* ===========================
+   WRITE-UPS GRID (BLOG LOOK)
+=========================== */
+
+.writeups-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.writeup-card {
+  display: block;
+  padding: 18px;
+  background: #fffdfc;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: 0.2s ease;
+}
+
+.writeup-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+.writeup-card h3 {
+  margin: 0 0 6px 0;
+  font-family: "Patrick Hand";
+  font-size: 24px;
+}
+
+.writeup-card .excerpt {
+  color: var(--muted);
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.read-more {
+  font-family: "Patrick Hand";
+  color: var(--accent);
+  font-size: 16px;
+}
+
+/* ARTICLE PAGE */
+.writeup-article {
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.writeup-article h2 {
+  font-family: "Patrick Hand";
+  font-size: 30px;
+  margin-bottom: 12px;
+}
+
+.markdown-body {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* MOBILE FIX */
+@media (max-width: 600px) {
+  .writeup-card h3 {
+    font-size: 20px;
+  }
+}
